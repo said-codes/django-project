@@ -1,9 +1,15 @@
 {% extends 'base.html' %}
 
+{% block title %}Detalles de la Tarea{% endblock %}
+
 {% block content %}
-<h2>{{ task.title }}</h2>
-<p>{{ task.description }}</p>
-<p>Estado: {{ task.completed|yesno:"Completada,Pendiente" }}</p>
-<a href="{% url 'task_edit' task.pk %}" class="btn btn-warning">Editar</a>
-<a href="{% url 'task_list' %}" class="btn btn-secondary">Volver a la lista</a>
+<h1 class="h3 mb-4 text-gray-800">Detalles de la Tarea</h1>
+<div class="card shadow mb-4">
+    <div class="card-body">
+        <h5>{{ task.title }}</h5>
+        <p>{{ task.description }}</p>
+        <a href="{% url 'task_edit' task.pk %}" class="btn btn-warning">Editar</a>
+        <a href="{% url 'task_list' %}" class="btn btn-secondary">Volver a la lista</a>
+    </div>
+</div>
 {% endblock %}

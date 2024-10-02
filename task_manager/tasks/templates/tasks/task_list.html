@@ -1,19 +1,27 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Lista de Tareas{% endblock %}
 
 {% block content %}
-<h2>Lista de Tareas</h2>
-<a href="{% url 'task_create' %}" class="btn btn-primary">Crear Nueva Tarea</a>
-<ul>
-  {% for task in tasks %}
-  <li>
-    <a href="{% url 'task_detail' task.pk %}">{{ task.title }}</a>
-    <a href="{% url 'task_edit' task.pk %}" class="btn btn-sm btn-warning">Editar</a>
-    <form action="{% url 'task_delete' task.pk %}" method="post" style="display: inline;">
-      {% csrf_token %}
-      <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
-    </form>
-    <span class="badge {% if task.completed %}bg-success{% else %}bg-secondary{% endif %}">{{ task.completed|yesno:"Completada,Pendiente" }}</span>
-  </li>
-  {% endfor %}
-</ul>
+<h1 class="h3 mb-4 text-gray-800">Lista de Tareas</h1>
+<a href="{% url 'task_create' %}" class="btn btn-primary mb-3">Crear Nueva Tarea</a>
+<div class="card shadow mb-4">
+    <div class="card-body">
+        <ul class="list-group">
+            {% for task in tasks %}
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <a href="{% url 'task_detail' task.pk %}">{{ task.title }}</a>
+                    <div>
+                        <a href="{% url 'task_edit' task.pk %}" class="btn btn-sm btn-warning">Editar</a>
+                        <form action="{% url 'task_delete' task.pk %}" method="post" style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
+                        </form>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
 {% endblock %}
