@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Lista de Tareas</h2>
+<a href="{% url 'task_create' %}" class="btn btn-primary">Crear Nueva Tarea</a>
+<ul>
+  {% for task in tasks %}
+  <li>
+    <a href="{% url 'task_detail' task.pk %}">{{ task.title }}</a>
+    <a href="{% url 'task_edit' task.pk %}" class="btn btn-sm btn-warning">Editar</a>
+    <form action="{% url 'task_delete' task.pk %}" method="post" style="display: inline;">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
+    </form>
+    <span class="badge {% if task.completed %}bg-success{% else %}bg-secondary{% endif %}">{{ task.completed|yesno:"Completada,Pendiente" }}</span>
+  </li>
+  {% endfor %}
+</ul>
+{% endblock %}
