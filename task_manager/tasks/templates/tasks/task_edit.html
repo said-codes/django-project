@@ -21,6 +21,10 @@
                     <label for="description">Descripción</label>
                     <textarea class="form-control" id="description" name="description" rows="3" placeholder="Ingrese la descripción" required>{{ form.description.value }}</textarea>
                 </div>
+                <div class="form-group form-check">
+                    <input type="checkbox" class="form-check-input" id="completed" name="completed" {% if form.completed.value %}checked{% endif %}>
+                    <label class="form-check-label" for="completed">¿Tarea completada?</label>
+                </div>
                 <button type="submit" class="btn btn-primary">Actualizar Tarea</button>
                 <a href="{% url 'task_list' %}" class="btn btn-secondary">Cancelar</a>
             </form>

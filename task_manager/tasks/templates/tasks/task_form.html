@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+ç{% extends 'base.html' %}
 
 {% block title %}Crear Tarea{% endblock %}
 
@@ -20,6 +20,10 @@
                 <div class="form-group">
                     <label for="description">Descripción</label>
                     <textarea class="form-control" id="description" name="description" rows="3" placeholder="Ingrese la descripción" required></textarea>
+                </div>
+                <div class="form-group form-check">
+                    <input type="checkbox" class="form-check-input" id="completed" name="completed">
+                    <label class="form-check-label" for="completed">¿Tarea completada?</label>
                 </div>
                 <button type="submit" class="btn btn-primary">Guardar Tarea</button>
                 <a href="{% url 'task_list' %}" class="btn btn-secondary">Cancelar</a>

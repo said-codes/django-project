@@ -3,25 +3,45 @@
 
 {% block title %}Lista de Tareas{% endblock %}
 
+
+
+
 {% block content %}
-<h1 class="h3 mb-4 text-gray-800">Lista de Tareas</h1>
 <a href="{% url 'task_create' %}" class="btn btn-primary mb-3">Crear Nueva Tarea</a>
-<div class="card shadow mb-4">
-    <div class="card-body">
-        <ul class="list-group">
+<div class="container">
+    <h1>Lista de Tareas</h1>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Título</th>
+                <th>Descripción</th>
+                <th>Fecha de Creación</th>
+                <th>Última Actualización</th>
+                <th>Completado</th>  <!-- Nueva columna para el estado de completado -->
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
             {% for task in tasks %}
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <a href="{% url 'task_detail' task.pk %}">{{ task.title }}</a>
-                    <div>
-                        <a href="{% url 'task_edit' task.pk %}" class="btn btn-sm btn-warning">Editar</a>
-                        <form action="{% url 'task_delete' task.pk %}" method="post" style="display: inline;">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
-                        </form>
-                    </div>
-                </li>
+            <tr>
+                <td>{{ task.title }}</td>
+                <td>{{ task.description }}</td>
+                <td>{{ task.created_at|date:"Y-m-d H:i:s" }}</td>  <!-- Formato de fecha y hora -->
+                <td>{{ task.updated_at|date:"Y-m-d H:i:s" }}</td>  <!-- Formato de fecha y hora -->
+                <td>
+                    {% if task.completed %}
+                        <span class="badge bg-success">Completado</span>  <!-- Estilo si está completada -->
+                    {% else %}
+                        <span class="badge bg-danger">No Completado</span>  <!-- Estilo si no está completada -->
+                    {% endif %}
+                </td>
+                <td>
+                    <a href="{% url 'task_edit' task.id %}" class="btn btn-warning">Editar</a>
+                    <a href="{% url 'task_delete' task.id %}" class="btn btn-danger">Eliminar</a>
+                </td>
+            </tr>
             {% endfor %}
-        </ul>
-    </div>
+        </tbody>
+    </table>
 </div>
 {% endblock %}
