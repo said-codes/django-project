@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+
+{% block title %}Editar Tarea{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="h3 mb-4 text-gray-800">Editar Tarea</h1>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Formulario de Edición de Tarea</h6>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="title">Título</label>
+                    <input type="text" class="form-control" id="title" name="title" value="{{ form.title.value }}" placeholder="Ingrese el título" required>
+                </div>
+                <div class="form-group">
+                    <label for="description">Descripción</label>
+                    <textarea class="form-control" id="description" name="description" rows="3" placeholder="Ingrese la descripción" required>{{ form.description.value }}</textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Actualizar Tarea</button>
+                <a href="{% url 'task_list' %}" class="btn btn-secondary">Cancelar</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

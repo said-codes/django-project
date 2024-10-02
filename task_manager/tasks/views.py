@@ -21,14 +21,16 @@ def task_create(request):
 # Vista para editar una tarea existente
 def task_edit(request, pk):
     task = get_object_or_404(Task, pk=pk)
+
     if request.method == 'POST':
         form = TaskForm(request.POST, instance=task)
         if form.is_valid():
             form.save()
-            return redirect('task_list')
+            return redirect('task_list')  # Redirige a la lista de tareas después de guardar.
     else:
         form = TaskForm(instance=task)
-    return render(request, 'tasks/task_form.html', {'form': form})
+
+    return render(request, 'tasks/task_edit.html', {'form': form})
 
 # Vista para eliminar una tarea
 def task_delete(request, pk):
