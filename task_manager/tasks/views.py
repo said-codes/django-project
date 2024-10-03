@@ -1,8 +1,14 @@
+from django.contrib.auth import login
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.contrib.auth.forms import UserCreationForm
 from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required
 from .models import Task
 from .forms import TaskForm
 
 # Vista para listar todas las tareas
+@login_required
 def task_list(request):
     tasks = Task.objects.all()
     return render(request, 'tasks/task_list.html', {'tasks': tasks})
@@ -44,3 +50,22 @@ def task_delete(request, pk):
 def task_detail(request, pk):
     task = get_object_or_404(Task, pk=pk)
     return render(request, 'tasks/task_detail.html', {'task': task})
+
+
+
+
+def register(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)  # Inicia sesión al usuario después del registro
+            messages.success(request, '¡Te has registrado exitosamente!')
+            return redirect('task_list')  # Redirige a la lista de tareas
+    else:
+        form = UserCreationForm()
+
+    return render(request, 'tasks/register.html', {'form': form})
+
+
+

@@ -26,6 +26,11 @@
                 <!-- Topbar -->
                 {% include 'partials/topbar.html' %}
                 <!-- End of Topbar -->
+                {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-success">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
 
                 <!-- Begin Page Content -->
                 <div class="container-fluid">

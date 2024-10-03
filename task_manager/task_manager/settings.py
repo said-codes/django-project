@@ -1,3 +1,5 @@
+from django.contrib.messages import constants as messages
+
 """
 Django settings for task_manager project.
 
@@ -123,3 +125,14 @@ STATICFILES_DIRS = [BASE_DIR / 'static']
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'task_list'
+LOGOUT_REDIRECT_URL = 'login'
+
+
+SESSION_COOKIE_AGE = 1209600  # 2 semanas, puedes cambiarlo
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # Expira al cerrar el navegador
+
+
+
+MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
