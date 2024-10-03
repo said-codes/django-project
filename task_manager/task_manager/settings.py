@@ -77,8 +77,12 @@ WSGI_APPLICATION = 'task_manager.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'tasks',
+        'USER': 'postgres',
+        'PASSWORD': 'antonio2805',
+        'HOST': 'localhost',  # O la dirección del servidor de base de datos
+        'PORT': '5432',  # El puerto por defecto de PostgreSQL
     }
 }
 
