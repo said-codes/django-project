@@ -3,13 +3,12 @@
 
 {% block title %}Lista de Tareas{% endblock %}
 
-
-
-
 {% block content %}
+<!-- Solo los administradores y usuarios con permiso para agregar tareas pueden ver este botón -->
 {% if "tasks.add_task" in permisos %}
 <a href="{% url 'task_create' %}" class="btn btn-primary mb-3">Crear Nueva Tarea</a>
 {% endif %}
+
 <div class="container">
     <h1>Lista de Tareas</h1>{{permisos}}
     <table class="table table-striped">
@@ -19,7 +18,7 @@
                 <th>Descripción</th>
                 <th>Fecha de Creación</th>
                 <th>Última Actualización</th>
-                <th>Completado</th>  <!-- Nueva columna para el estado de completado -->
+                <th>Completado</th>
                 <th>Acciones</th>
             </tr>
         </thead>
@@ -28,18 +27,27 @@
             <tr>
                 <td>{{ task.title }}</td>
                 <td>{{ task.description }}</td>
-                <td>{{ task.created_at|date:"Y-m-d H:i:s" }}</td>  <!-- Formato de fecha y hora -->
-                <td>{{ task.updated_at|date:"Y-m-d H:i:s" }}</td>  <!-- Formato de fecha y hora -->
+                <td>{{ task.created_at|date:"Y-m-d H:i:s" }}</td>
+                <td>{{ task.updated_at|date:"Y-m-d H:i:s" }}</td>
                 <td>
                     {% if task.completed %}
-                        <span class="badge bg-success">Completado</span>  <!-- Estilo si está completada -->
+                        <span class="badge bg-success">Completado</span>
                     {% else %}
-                        <span class="badge bg-danger">No Completado</span>  <!-- Estilo si no está completada -->
+                        <span class="badge bg-danger">No Completado</span>
                     {% endif %}
                 </td>
                 <td>
+                    {% if "tasks.change_task" in permisos %}
+                    <a href="{% url 'task_detail' task.id %}" class="btn btn-info">Detalles</a>
+                    {%endif%}
+                    <!-- Los administradores y usuarios con permiso para editar pueden ver el botón Editar -->
+                    {% if "tasks.change_task" in permisos %}
                     <a href="{% url 'task_edit' task.id %}" class="btn btn-warning">Editar</a>
+                    {% endif %}
+                    <!-- Solo los administradores pueden ver el botón Eliminar -->
+                    {% if "tasks.delete_task" in permisos %}
                     <a href="{% url 'task_delete' task.id %}" class="btn btn-danger">Eliminar</a>
+                    {% endif %}
                 </td>
             </tr>
             {% endfor %}
