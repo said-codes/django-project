@@ -43,9 +43,15 @@
                     {% endif %}
                 </td>
                 <td>
+                    {% if "tasks.view_task" in permisos %}
                     <a href="{% url 'task_detail' task.id %}" class="btn btn-info">Detalles</a>
+                    {%endif%}
+                    {% if "tasks.change_task" in permisos %}
                     <a href="{% url 'task_edit' task.id %}" class="btn btn-warning">Editar</a>
+                    {%endif%}
+                    {% if "tasks.delete_task" in permisos %}
                     <a href="{% url 'task_delete' task.id %}" class="btn btn-danger">Eliminar</a>
+                    {%endif%}
                 </td>
             </tr>
             {% endfor %}
