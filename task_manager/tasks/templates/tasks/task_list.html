@@ -7,9 +7,11 @@
 
 
 {% block content %}
+{% if "tasks.add_task" in permisos %}
 <a href="{% url 'task_create' %}" class="btn btn-primary mb-3">Crear Nueva Tarea</a>
+{% endif %}
 <div class="container">
-    <h1>Lista de Tareas</h1>
+    <h1>Lista de Tareas</h1>{{permisos}}
     <table class="table table-striped">
         <thead>
             <tr>

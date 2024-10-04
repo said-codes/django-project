@@ -1,4 +1,10 @@
 from django.contrib.messages import constants as messages
+import os
+from pathlib import Path
+from dotenv import load_dotenv
+
+# Cargar archivo .env
+load_dotenv()
 
 """
 Django settings for task_manager project.
@@ -40,6 +46,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'tasks',
+    'rest_framework',
+    'rest_framework.authtoken',
 ]
 
 MIDDLEWARE = [
@@ -78,11 +86,11 @@ WSGI_APPLICATION = 'task_manager.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'tasks',
-        'USER': 'postgres',
-        'PASSWORD': 'antonio2805',
-        'HOST': 'localhost',  # O la dirección del servidor de base de datos
-        'PORT': '5432',  # El puerto por defecto de PostgreSQL
+        'NAME': os.getenv('DB_NAME'),
+        'USER': os.getenv('DB_USER'),
+        'PASSWORD': os.getenv('DB_PASSWORD'),
+        'HOST': os.getenv('DB_HOST'),
+        'PORT': os.getenv('DB_PORT'),
     }
 }
 

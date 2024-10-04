@@ -1,6 +1,7 @@
-# admin.py
 from django.contrib import admin
+from rest_framework.authtoken.models import  TokenProxy
 from .models import Task
+
 
 @admin.register(Task)
 class TaskAdmin(admin.ModelAdmin):
@@ -8,4 +9,10 @@ class TaskAdmin(admin.ModelAdmin):
     search_fields = ('title',)  # Campos por los que se puede buscar
     ordering = ('created_at',)  # Ordenar por fecha de creación
 
+
+# Desregistrar TokenProxy si está registrado
+try:
+    admin.site.unregister(TokenProxy)
+except admin.sites.NotRegistered:
+    pass
 

@@ -1,5 +1,4 @@
 from django.contrib.auth import login
-from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth.forms import UserCreationForm
 from django.shortcuts import render, get_object_or_404, redirect
@@ -10,8 +9,12 @@ from .forms import TaskForm
 # Vista para listar todas las tareas
 @login_required
 def task_list(request):
+    user = request.user
+    print("Este usario ingreso al listado de tareas", user)
+    group_permissions = user.get_group_permissions()
+    print("tiene estos permisos", group_permissions)
     tasks = Task.objects.all()
-    return render(request, 'tasks/task_list.html', {'tasks': tasks})
+    return render(request, 'tasks/task_list.html', {'tasks': tasks, "permisos": group_permissions})
 
 # Vista para crear una nueva tarea
 def task_create(request):
@@ -26,17 +29,22 @@ def task_create(request):
 
 # Vista para editar una tarea existente
 def task_edit(request, pk):
-    task = get_object_or_404(Task, pk=pk)
+    user = request.user
+    group_permissions = user.get_group_permissions()
+    if 'tasks.change_task' in group_permissions:
+        task = get_object_or_404(Task, pk=pk)
 
-    if request.method == 'POST':
-        form = TaskForm(request.POST, instance=task)
-        if form.is_valid():
-            form.save()
-            return redirect('task_list')  # Redirige a la lista de tareas después de guardar.
+        if request.method == 'POST':
+            form = TaskForm(request.POST, instance=task)
+            if form.is_valid():
+                form.save()
+                return redirect('task_list')  # Redirige a la lista de tareas después de guardar.
+        else:
+            form = TaskForm(instance=task)
+
+        return render(request, 'tasks/task_edit.html', {'form': form})
     else:
-        form = TaskForm(instance=task)
-
-    return render(request, 'tasks/task_edit.html', {'form': form})
+        return redirect('task_list')
 
 # Vista para eliminar una tarea
 def task_delete(request, pk):
