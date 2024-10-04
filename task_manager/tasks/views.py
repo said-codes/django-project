@@ -29,6 +29,16 @@ def task_list(request):
     permisos = request.user.get_all_permissions()
     print(permisos)
     tasks = Task.objects.all()
+    for task in tasks:
+        duration = task.duration()  # Obtener la duración en timedelta
+        if duration:
+            # Calcular días, horas y minutos
+            task.duration_days = duration.days
+            task.duration_hours = duration.seconds // 3600
+            task.duration_minutes = (duration.seconds % 3600) // 60
+        else:
+            task.duration_days = task.duration_hours = task.duration_minutes = None
+
     return render(request, 'tasks/task_list.html', {'tasks': tasks, "permisos": permisos})
 
 # Vista para crear una nueva tarea

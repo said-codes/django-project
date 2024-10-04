@@ -4,11 +4,9 @@
 {% block title %}Lista de Tareas{% endblock %}
 
 {% block content %}
-<!-- Solo los administradores y usuarios con permiso para agregar tareas pueden ver este botón -->
 {% if "tasks.add_task" in permisos %}
 <a href="{% url 'task_create' %}" class="btn btn-primary mb-3">Crear Nueva Tarea</a>
 {% endif %}
-
 <div class="container">
     <h1>Lista de Tareas</h1>{{permisos}}
     <table class="table table-striped">
@@ -19,6 +17,7 @@
                 <th>Fecha de Creación</th>
                 <th>Última Actualización</th>
                 <th>Completado</th>
+                <th>Duración</th>  <!-- Nueva columna para la duración -->
                 <th>Acciones</th>
             </tr>
         </thead>
@@ -37,17 +36,16 @@
                     {% endif %}
                 </td>
                 <td>
-                    {% if "tasks.change_task" in permisos %}
+                    {% if task.duration_days is not None %}
+                        {{ task.duration_days }} días, {{ task.duration_hours }} horas, {{ task.duration_minutes }} minutos
+                    {% else %}
+                        No disponible
+                    {% endif %}
+                </td>
+                <td>
                     <a href="{% url 'task_detail' task.id %}" class="btn btn-info">Detalles</a>
-                    {%endif%}
-                    <!-- Los administradores y usuarios con permiso para editar pueden ver el botón Editar -->
-                    {% if "tasks.change_task" in permisos %}
                     <a href="{% url 'task_edit' task.id %}" class="btn btn-warning">Editar</a>
-                    {% endif %}
-                    <!-- Solo los administradores pueden ver el botón Eliminar -->
-                    {% if "tasks.delete_task" in permisos %}
                     <a href="{% url 'task_delete' task.id %}" class="btn btn-danger">Eliminar</a>
-                    {% endif %}
                 </td>
             </tr>
             {% endfor %}
