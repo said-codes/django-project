@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">{{ title }}</h1>
+        <a href="{% url 'user_create' %}" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
+            <i class="fas fa-plus fa-sm text-white-50"></i> Crear Nuevo Usuario
+        </a>
+    </div>
+
+    <!-- DataTales Example -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Lista de Usuarios</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Foto</th> <!-- Nueva columna para la foto -->
+                            <th>Nombre</th>
+                            <th>Apellido</th>
+                            <th>Email</th>
+                            <th>Teléfono</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                        <tr>
+                            <td>
+                                {% if user.photo %}
+                                    <img src="{{ user.photo.url }}" alt="Foto" width="50" height="50" onerror="this.src='{% static 'sb_admin_2/img/undraw_profile.svg' %}'">
+                                {% else %}
+                                    <img src="{% static 'sb_admin_2/img/undraw_profile.svg' %}" alt="Foto por defecto" width="50" height="50">
+                                {% endif %}
+                            </td>
+
+                            <td>{{ user.name }}</td>
+                            <td>{{ user.lastname }}</td>
+                            <td>{{ user.email }}</td>
+                            <td>{{ user.phone }}</td>
+                            <td>
+                                <a href="{% url 'user_detail' user.id %}" class="btn btn-info btn-circle btn-sm" title="Detalles">
+                                    <i class="fas fa-info-circle"></i>
+                                </a>
+                                <a href="{% url 'user_edit' user.id %}" class="btn btn-warning btn-circle btn-sm" title="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{% url 'user_delete' user.id %}" class="btn btn-danger btn-circle btn-sm" title="Eliminar">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center">No hay usuarios registrados.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

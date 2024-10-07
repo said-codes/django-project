@@ -49,6 +49,8 @@ INSTALLED_APPS = [
     'tasks',
     'rest_framework',
     'rest_framework.authtoken',
+    'users',
+    'phone_field',
 ]
 
 MIDDLEWARE = [
@@ -155,3 +157,10 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # Expira al cerrar el navegador
 
 
 MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
+
+
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+MEDIA_URL = '//'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'uploads/')

@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">{{ title }}</h1>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Detalles del Usuario</h6>
+        </div>
+        <div class="card-body">
+            <p><strong>Nombre:</strong> {{ user.name }}</p>
+            <p><strong>Apellido:</strong> {{ user.lastname }}</p>
+            <p><strong>Email:</strong> {{ user.email }}</p>
+            <p><strong>Teléfono:</strong> {{ user.phone }}</p>
+            <p><strong>Foto:</strong></p>
+            {% if user.photo %}
+                <img src="{{ user.photo.url }}" alt="Foto de {{ user.name }}" class="img-fluid" style="max-width: 200px;">
+            {% else %}
+                <p>No hay foto disponible.</p>
+            {% endif %}
+            <a href="{% url 'user_list' %}" class="btn btn-secondary mt-3">Volver a la lista</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
