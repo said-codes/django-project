@@ -1,38 +1,88 @@
 {% extends 'base.html' %}
+{% load static %}
 
-{% block title %}Registrar{% endblock %}
+{% block title %}Registro{% endblock %}
 
 {% block content %}
-<div class="container-fluid">
-    <h1 class="h3 mb-4 text-gray-800">Registrar Nueva Cuenta</h1>
-
-    <div class="card shadow mb-4">
-        <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Formulario de Registro</h6>
-        </div>
-        <div class="card-body">
-            {% if messages %}
-                {% for message in messages %}
-                    <div class="alert alert-success">{{ message }}</div>
-                {% endfor %}
-            {% endif %}
-            <form method="post">
-                {% csrf_token %}
-                <div class="form-group">
-                    <label for="username">Nombre de Usuario</label>
-                    <input type="text" class="form-control" id="username" name="username" placeholder="Ingrese su nombre de usuario" required>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-xl-10 col-lg-12 col-md-9">
+            <div class="card o-hidden border-0 shadow-lg my-5">
+                <div class="card-body p-0">
+                    <!-- Nested Row within Card Body -->
+                    <div class="row">
+                        <div class="col-lg-6 d-none d-lg-block bg-register-image"></div>
+                        <div class="col-lg-6">
+                            <div class="p-5">
+                                <div class="text-center">
+                                    <h1 class="h4 text-gray-900 mb-4">¡Crea una Cuenta!</h1>
+                                </div>
+                                <form method="post" class="user">
+                                    {% csrf_token %}
+                                    {{ form.non_field_errors }}
+                                    <div class="form-group">
+                                        {{ form.username.label_tag }}
+                                        {{ form.username }}
+                                        {% if form.username.errors %}
+                                            <div class="text-danger">
+                                                {% for error in form.username.errors %}
+                                                    {{ error }}
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="form-group">
+                                        {{ form.email.label_tag }}
+                                        {{ form.email }}
+                                        {% if form.email.errors %}
+                                            <div class="text-danger">
+                                                {% for error in form.email.errors %}
+                                                    {{ error }}
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="form-group">
+                                        {{ form.password1.label_tag }}
+                                        {{ form.password1 }}
+                                        <small class="form-text text-muted">
+                                            La contraseña debe tener al menos 8 caracteres, incluir letras y números.
+                                        </small>
+                                        {% if form.password1.errors %}
+                                            <div class="text-danger">
+                                                {% for error in form.password1.errors %}
+                                                    {{ error }}
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    <div class="form-group">
+                                        {{ form.password2.label_tag }}
+                                        {{ form.password2 }}
+                                        <small class="form-text text-muted">
+                                            Repita la contraseña para confirmar.
+                                        </small>
+                                        {% if form.password2.errors %}
+                                            <div class="text-danger">
+                                                {% for error in form.password2.errors %}
+                                                    {{ error }}
+                                                {% endfor %}
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    <button type="submit" class="btn btn-primary btn-user btn-block">
+                                        Registrar Cuenta
+                                    </button>
+                                </form>
+                                <hr>
+                                <div class="text-center">
+                                    <a class="small" href="{% url 'login' %}">¿Ya tienes una cuenta? Inicia sesión aquí</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label for="password1">Contraseña</label>
-                    <input type="password" class="form-control" id="password1" name="password1" placeholder="Ingrese una contraseña" required>
-                </div>
-                <div class="form-group">
-                    <label for="password2">Confirmar Contraseña</label>
-                    <input type="password" class="form-control" id="password2" name="password2" placeholder="Confirme su contraseña" required>
-                </div>
-                <button type="submit" class="btn btn-primary">Registrar</button>
-                <a href="{% url 'login' %}" class="btn btn-secondary">¿Ya tienes cuenta? Iniciar sesión</a>
-            </form>
+            </div>
         </div>
     </div>
 </div>

@@ -1,7 +1,6 @@
 from django.contrib import admin
-from rest_framework.authtoken.models import  TokenProxy
 from .models import Task
-
+from rest_framework.authtoken.models import Token
 
 @admin.register(Task)
 class TaskAdmin(admin.ModelAdmin):
@@ -10,9 +9,12 @@ class TaskAdmin(admin.ModelAdmin):
     ordering = ('created_at',)  # Ordenar por fecha de creación
 
 
-# Desregistrar TokenProxy si está registrado
-try:
-    admin.site.unregister(TokenProxy)
-except admin.sites.NotRegistered:
-    pass
+class TokenAdmin(admin.ModelAdmin):
+    list_display = ('user', 'key', 'created')
+    search_fields = ('user__username', 'key')
+
+
+
+# Registramos nuevamente el Token con nuestra configuración personalizada
+admin.site.register(Token, TokenAdmin)
 

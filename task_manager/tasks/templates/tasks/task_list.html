@@ -24,7 +24,9 @@
         <tbody>
             {% for task in tasks %}
             <tr>
-                <td>{{ task.title }}</td>
+                <td>
+                    <a href="{% url 'task_detail' task.id %}">{{ task.title }}</a>  <!-- Enlace en el título de la tarea -->
+                </td>
                 <td>{{ task.description }}</td>
                 <td>{{ task.created_at|date:"Y-m-d H:i:s" }}</td>
                 <td>{{ task.updated_at|date:"Y-m-d H:i:s" }}</td>
@@ -36,16 +38,10 @@
                     {% endif %}
                 </td>
                 <td>
-                    {% if task.duration_days is not None %}
-                        {{ task.duration_days }} días, {{ task.duration_hours }} horas, {{ task.duration_minutes }} minutos
-                    {% else %}
-                        No disponible
-                    {% endif %}
+                    {{ task.formatted_duration }}
                 </td>
+
                 <td>
-                    {% if "tasks.view_task" in permisos %}
-                    <a href="{% url 'task_detail' task.id %}" class="btn btn-info">Detalles</a>
-                    {%endif%}
                     {% if "tasks.change_task" in permisos %}
                     <a href="{% url 'task_edit' task.id %}" class="btn btn-warning">Editar</a>
                     {%endif%}

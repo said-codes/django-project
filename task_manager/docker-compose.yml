@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  web:
+    restart: on-failure
+    depends_on:
+    - db
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    environment:
+      - DEBUG=1  # Cambiar a 0 en producción
+      - DATABASE_URL=postgres://<postgres>:<antonio2805>@db:5432/<tasks>  # Cambia según tu configuración
+
+  db:
+    image: postgres:latest
+    environment:
+      POSTGRES_DB: <tasks>
+      POSTGRES_USER: <postgres>
+      POSTGRES_PASSWORD: <antonio2805>
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
