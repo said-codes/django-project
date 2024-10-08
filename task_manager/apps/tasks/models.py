@@ -11,6 +11,12 @@ class Task(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     completed_at = models.DateTimeField(null=True, blank=True)  # Nuevo campo para registrar el tiempo de finalización
+    enabled = models.BooleanField(default=True)  # Nuevo campo para habilitar/deshabilitar
+
+    class Meta:
+        permissions = [
+            ("reactivate_task", "Puede reactivar tareas"),  # Nuevo permiso
+        ]
 
     def save(self, *args, **kwargs):
         if self.completed and not self.completed_at:

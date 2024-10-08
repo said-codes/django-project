@@ -12,14 +12,20 @@
     <hr class="sidebar-divider my-0">
 
     <!-- Nav Item - Dashboard -->
-    {% if request.user.is_authenticated %}
     <li class="nav-item">
         <a class="nav-link" href="{% url 'task_list' %}">
             <i class="fas fa-fw fa-list"></i>
             <span>Lista de Tareas</span>
         </a>
     </li>
-    {% endif %}
+    {% if user.is_superuser %}  <!-- Verifica si el usuario es admin -->
+    <li class="nav-item">
+        <a class="nav-link" href="{% url 'user_list' %}">
+            <i class="fas fa-fw fa-users"></i>
+            <span>Usuarios</span>
+        </a>
+    </li>
+    {%endif%}
 
     <!-- Divider -->
     <hr class="sidebar-divider">

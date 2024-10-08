@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Lista de Tareas{% endblock %}
+
+{% block content %}
+
+<div class="container">
+    {% if "tasks.add_task" in permisos %}
+    <div class="d-flex justify-content-start mb-3">
+        <a href="{% url 'task_create' %}" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
+            <i class="fas fa-plus fa-sm text-white-50"></i> Crear Nueva Tarea
+        </a>
+    </div>
+    {% endif %}
+    <h1>Lista de Tareas</h1>{{permisos}}
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Título</th>
+                <th>Descripción</th>
+                <th>Fecha de Creación</th>
+                <th>Última Actualización</th>
+                <th>Completado</th>
+                <th>Duración</th>  <!-- Nueva columna para la duración -->
+                {% if "tasks.change_task" in permisos and "tasks.delete_task" in permisos %}
+                <th>Acciones</th>
+                {%endif%}
+            </tr>
+        </thead>
+        <tbody>
+            {% for task in tasks %}
+            <tr>
+                <td>
+                    <a href="{% url 'task_detail' task.id %}">{{ task.title }}</a>  <!-- Enlace en el título de la tarea -->
+                </td>
+                <td>{{ task.description }}</td>
+                <td>{{ task.created_at|date:"Y-m-d H:i:s" }}</td>
+                <td>{{ task.updated_at|date:"Y-m-d H:i:s" }}</td>
+                <td>
+                    {% if task.completed %}
+                        <span class="badge bg-success">Completado</span>
+                    {% else %}
+                        <span class="badge bg-danger">No Completado</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {{ task.formatted_duration }}
+                </td>
+
+                <td class="d-flex justify-content-around">
+                    {% if "tasks.change_task" in permisos %}
+                    <a href="{% url 'task_edit' task.id %}" class="btn btn-warning btn-circle btn-sm mx-1" title="Editar">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                    {% endif %}
+                    {% if "tasks.delete_task" in permisos %}
+                    <a href="{% url 'task_delete' task.id %}" class="btn btn-danger btn-circle btn-sm mx-1" title="Eliminar">
+                        <i class="fas fa-trash"></i>
+                    </a>
+                    {% endif %}
+                    <a href="{% url 'task_detail' task.id %}" class="btn btn-info btn-circle btn-sm mx-1" title="Detalles">
+                        <i class="fas fa-info-circle"></i>
+                    </a>
+                </td>
+
+            </tr>
+            {% endfor %}
+            {% for task in disabled_tasks %}
+            <tr style="text-decoration: line-through; color: gray;"> <!-- Estilo tachado para tareas deshabilitadas -->
+                <td>
+                    <a href="{% url 'task_detail' task.id %}" class="text-muted">{{ task.title }}</a>  <!-- Enlace en el título de la tarea -->
+                </td>
+                <td>{{ task.description }}</td>
+                <td>{{ task.created_at|date:"Y-m-d H:i:s" }}</td>
+                <td>{{ task.updated_at|date:"Y-m-d H:i:s" }}</td>
+                <td>
+                    {% if task.completed %}
+                        <span class="badge bg-success">Completado</span>
+                    {% else %}
+                        <span class="badge bg-danger">No Completado</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {{ task.formatted_duration }}
+                </td>
+                <td>
+                    {% if "tasks.reactivate_task" in permisos %}
+                    <a href="{% url 'task_reactivate' task.id %}" class="btn btn-success btn-circle btn-sm" title="Reactivar">
+                        <i class="fas fa-redo"></i> <!-- Icono de reactivar -->
+                    </a>
+                    {%else%}
+                    <a href="{% url 'task_detail' task.id %}" class="btn btn-info btn-circle btn-sm" title="Detalles">
+                        <i class="fas fa-info-circle"></i>
+                    </a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+
+        </tbody>
+    </table>
+</div>
+{% endblock %}

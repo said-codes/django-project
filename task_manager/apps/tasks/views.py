@@ -15,7 +15,8 @@ def task_list(request):
     # Obtener los permisos del usuario actual
     permisos = request.user.get_all_permissions()
     print(permisos)
-    tasks = Task.objects.all()
+    tasks = Task.objects.filter(enabled=True)  # Solo obtiene tareas
+    disabled_tasks = Task.objects.filter(enabled=False)
     for task in tasks:
          duration = task.duration  # Acceder como propiedad, sin paréntesis
          if duration:
@@ -26,7 +27,7 @@ def task_list(request):
          else:
             task.duration_days = task.duration_hours = task.duration_minutes = None
 
-    return render(request, 'tasks/task_list.html', {'tasks': tasks, "permisos": permisos})
+    return render(request, 'tasks/task_list.html', {'tasks': tasks,'disabled_tasks':disabled_tasks, "permisos": permisos})
 
 
 # Vista para crear una nueva tarea
@@ -91,6 +92,7 @@ def task_edit(request, pk):
 
 
 # Vista para eliminar una tarea
+"""
 @login_required
 def task_delete(request, pk):
     user = request.user
@@ -109,6 +111,15 @@ def task_delete(request, pk):
         task.delete()
         return redirect('task_list')
     return render(request, 'tasks/task_confirm_delete.html', {'task': task})
+"""
+
+
+@login_required
+def task_delete(request, pk):
+    task = get_object_or_404(Task, pk=pk)
+    task.enabled = False  # Cambia el estado a deshabilitado
+    task.save()
+    return redirect('task_list')  # Redirige a la lista de tareas
 
 
 # Vista para ver los detalles de una tarea específica
@@ -135,3 +146,8 @@ def register(request):
 
 
 
+def task_reactivate(request, pk):
+    task = get_object_or_404(Task, pk=pk)
+    task.enabled = True  # Cambia el estado a habilitado
+    task.save()
+    return redirect('task_list')
