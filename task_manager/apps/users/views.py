@@ -1,6 +1,9 @@
+from .forms import UpdateProfilePictureForm, UpdateUserInfoForm
+from django.contrib.auth import get_user_model
+from .forms import RegisterForm  # Asegúrate de tener un formulario personalizado
 from django.views import View
 from .models import Customer
-from .forms import CustomerForm  # Asegúrate de que tienes este formulario creado
+from .forms import CustomerForm
 from django.contrib.auth.views import PasswordChangeView
 from django.urls import reverse_lazy
 from django.contrib import messages
@@ -16,16 +19,20 @@ from .forms import EmailAuthenticationForm
 
 # Funciones de Sesiones
 def register(request):
+    User = get_user_model()
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)
+        form = RegisterForm(request.POST)
         if form.is_valid():
-            user = form.save()
-            login(request, user)  # Inicia sesión al usuario después del registro
+            user = form.save(commit=False)
+            user.set_password(form.cleaned_data['password1'])  # Encriptar la contraseña
+            user.save()
+            login(request, user)  # Iniciar sesión al usuario después del registro
             messages.success(request, '¡Te has registrado exitosamente!')
-            return redirect('task_list')  # Redirige a la lista de tareas
+            return redirect('task_list')  # Redirige después de un registro exitoso
+        else:
+            messages.error(request, 'Por favor corrige los errores en el formulario.')
     else:
-        form = UserCreationForm()
-
+        form = RegisterForm()  # Crea un nuevo formulario vacío para GET
     return render(request, 'accounts/register.html', {'form': form})
 
 
@@ -110,7 +117,35 @@ class CustomLoginView(LoginView):
 
 # Vista para ver el perfil del usuario
 def user_profile(request):
-    return render(request, 'accounts/profile.html', {'user': request.user})
+    user = request.user
+
+    if request.method == 'POST':
+        # Verificamos si el formulario que se envió es para la imagen o para la información personal
+        if 'update_picture' in request.POST:
+            picture_form = UpdateProfilePictureForm(request.POST, request.FILES, instance=user)
+            info_form = UpdateUserInfoForm(instance=user)  # No procesamos info_form cuando se sube imagen
+            if picture_form.is_valid():
+                picture_form.save()
+                messages.success(request, '¡Tu foto de perfil ha sido actualizada!')
+                return redirect('profile')
+        elif 'update_info' in request.POST:
+            picture_form = UpdateProfilePictureForm(instance=user)  # No procesamos picture_form cuando se actualiza info
+            info_form = UpdateUserInfoForm(request.POST, instance=user)
+            if info_form.is_valid():
+                info_form.save()
+                messages.success(request, '¡Tu información personal ha sido actualizada!')
+                return redirect('profile')
+    else:
+        picture_form = UpdateProfilePictureForm(instance=user)
+        info_form = UpdateUserInfoForm(instance=user)
+
+    context = {
+        'picture_form': picture_form,
+        'info_form': info_form,
+        'user': user,
+    }
+    return render(request, 'accounts/profile.html', context)
+
 
 # Vista para cambiar la contraseña
 class CustomPasswordChangeView(PasswordChangeView):
@@ -160,3 +195,6 @@ class customer_delete(View):
         customer = get_object_or_404(Customer, pk=pk)
         customer.delete()
         return redirect('customer_list')
+
+
+

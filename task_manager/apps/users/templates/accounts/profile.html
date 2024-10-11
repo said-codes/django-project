@@ -5,26 +5,49 @@
 
 {% block content %}
 <div class="container">
-    <h1 class="h3 mb-4 text-gray-800">Perfil de Usuario</h1>
-    <div class="row">
-        <div class="col-lg-4">
-            <!-- Imagen de perfil más pequeña y con estilos de SB Admin 2 -->
-            <div class="card shadow mb-4">
-                <div class="card-body text-center">
-                    <img src="{% if user.avatar %}{{ user.avatar.url }}{% else %}{% static 'sb_admin_2/img/undraw_profile.svg' %}{% endif %}" style="width: 150px; height: 150px;" alt="Foto de Perfil" class="img-profile rounded-circle" />
+<div class="row">
+<div class="col-lg-4">
+    <!-- Imagen de perfil más pequeña y con estilos de SB Admin 2 -->
+    <div class="card shadow mb-4">
+        <div class="card-body text-center">
+            <!-- Vista previa de la imagen de perfil -->
+            <img src="{% if user.avatar %}{{ user.avatar.url }}{% else %}{% static 'sb_admin_2/img/undraw_profile.svg' %}{% endif %}"
+                 style="width: 150px; height: 150px;"
+                 alt="Foto de Perfil"
+                 class="img-profile rounded-circle" />
+
+            <!-- Formulario para cambiar la foto de perfil -->
+            <form method="POST" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="custom-file">
+                    <input type="file" class="custom-file-input" id="avatarInput" name="avatar">
+                    <label class="custom-file-label" for="avatarInput">Elegir nueva foto</label>
                 </div>
-            </div>
-        </div>
-        <div class="col-lg-8">
-            <div class="card shadow mb-4">
-                <div class="card-body">
-                    <h5 class="card-title">Información Personal</h5>
-                    <p><strong>Nombre: </strong>{{ user.name_complete }}</p>
-                    <p><strong>Correo Electrónico: </strong>{{ user.email }}</p>
-                    <p><strong>Teléfono: </strong>{{ user.phone }}</p>
-                </div>
-            </div>
+                <button type="submit" name="update_picture" class="btn btn-primary btn-sm mt-3">Actualizar Foto</button>
+            </form>
         </div>
     </div>
+</div>
+
+<div class="col-lg-8">
+    <div class="card shadow mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Información Personal</h5>
+            <p><strong>Nombre: </strong>{{ user.name_complete }}</p>
+            <p><strong>Correo Electrónico: </strong>{{ user.email }}</p>
+            <p><strong>Teléfono: </strong>{{ user.phone }}</p>
+
+            {% if not user.name or not user.phone %}
+            <!-- Formulario para actualizar nombre y teléfono -->
+            <form method="POST">
+                {% csrf_token %}
+                {{ info_form.as_p }}
+                <button type="submit" name="update_info" class="btn btn-primary btn-sm mt-3">Actualizar Información</button>
+            </form>
+            {% endif %}
+        </div>
+    </div>
+</div>
+</div>
 </div>
 {% endblock %}

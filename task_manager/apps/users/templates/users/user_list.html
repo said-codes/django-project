@@ -33,8 +33,8 @@
                         {% for user in users %}
                         <tr>
                             <td>
-                                {% if user.photo %}
-                                    <img src="{{ user.photo.url }}" alt="Foto" width="50" height="50" onerror="this.src='{% static 'sb_admin_2/img/undraw_profile.svg' %}'">
+                                {% if user.avatar %}
+                                    <img src="{{ user.avatar.url }}" alt="Foto" width="50" height="50" onerror="this.src='{% static 'sb_admin_2/img/undraw_profile.svg' %}'">
                                 {% else %}
                                     <img src="{% static 'sb_admin_2/img/undraw_profile.svg' %}" alt="Foto por defecto" width="50" height="50">
                                 {% endif %}
