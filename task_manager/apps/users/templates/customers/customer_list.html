@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Lista de Clientes{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="h3 mb-4 text-gray-800">Lista de Clientes</h1>
+    <div class="d-flex justify-content-start mb-3">
+        <a href="{% url 'customer_create' %}" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
+            <i class="fas fa-plus fa-sm text-white-50"></i> Crear Nuevo Cliente
+        </a>
+    </div>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Correo</th>
+                <th>Teléfono</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for customer in customers %}
+            <tr>
+                <td>{{ customer.name }}</td>
+                <td>{{ customer.email }}</td>
+                <td>{{ customer.phone }}</td>
+                <td>{% if customer.enable %}Visible{% else %}No Visible{% endif %}</td>
+                <td>
+                    <a href="{% url 'customer_edit' customer.id %}" class="btn btn-warning btn-circle btn-sm mx-1" title="Editar">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                    <a href="{% url 'customer_delete' customer.id %}" class="btn btn-danger btn-circle btn-sm mx-1" title="Eliminar">
+                        <i class="fas fa-trash"></i>
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -32,7 +32,10 @@
             {% for task in tasks %}
             <tr>
                 <td>
+                    {% if task.enabled %}
                     <a href="{% url 'task_detail' task.id %}">{{ task.title }}</a>  <!-- Enlace en el título de la tarea -->
+                    {% else %}
+                    <span style="text-decoration: line-through;">{{ task.title }}</span> <!-- Aplicar tachado si está deshabilitado -->                    {% endif %}
                 </td>
                 <td>{{ task.description }}</td>
                 <td>{{ task.created_at|date:"Y-m-d H:i:s" }}</td>
@@ -48,6 +51,7 @@
                     {{ task.formatted_duration }}
                 </td>
 
+                {% if task.enabled %}
                 <td class="d-flex justify-content-around">
                     {% if "tasks.change_task" in permisos %}
                     <a href="{% url 'task_edit' task.id %}" class="btn btn-warning btn-circle btn-sm mx-1" title="Editar">
@@ -63,28 +67,8 @@
                         <i class="fas fa-info-circle"></i>
                     </a>
                 </td>
-
-            </tr>
-            {% endfor %}
-            {% for task in disabled_tasks %}
-            <tr style="text-decoration: line-through; color: gray;"> <!-- Estilo tachado para tareas deshabilitadas -->
-                <td>
-                    <a href="{% url 'task_detail' task.id %}" class="text-muted">{{ task.title }}</a>  <!-- Enlace en el título de la tarea -->
-                </td>
-                <td>{{ task.description }}</td>
-                <td>{{ task.created_at|date:"Y-m-d H:i:s" }}</td>
-                <td>{{ task.updated_at|date:"Y-m-d H:i:s" }}</td>
-                <td>
-                    {% if task.completed %}
-                        <span class="badge bg-success">Completado</span>
-                    {% else %}
-                        <span class="badge bg-danger">No Completado</span>
-                    {% endif %}
-                </td>
-                <td>
-                    {{ task.formatted_duration }}
-                </td>
-                <td>
+                {% else  %}
+                <td class="d-flex justify-content-around">
                     {% if "tasks.reactivate_task" in permisos %}
                     <a href="{% url 'task_reactivate' task.id %}" class="btn btn-success btn-circle btn-sm" title="Reactivar">
                         <i class="fas fa-redo"></i> <!-- Icono de reactivar -->
@@ -95,9 +79,10 @@
                     </a>
                     {% endif %}
                 </td>
+                {% endif %}
+
             </tr>
             {% endfor %}
-
         </tbody>
     </table>
 </div>

@@ -6,17 +6,36 @@ from .models import Task
 from .forms import TaskForm
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
+from .models import User
 
 
 
 # Vista para listar todas las tareas
 @login_required
 def task_list(request):
+    # obtener el grupo al que pertenece
+    user = request.user
+    groups = user.groups.all()
+    grupos = [grupo.name for grupo in groups]
+    tasks = None
+    if "Consultor" in grupos:
+        tasks = Task.objects.filter(enabled=True).order_by("-enabled")
+    else:
+        tasks = Task.objects.all().order_by("-enabled")
+
     # Obtener los permisos del usuario actual
     permisos = request.user.get_all_permissions()
-    print(permisos)
-    tasks = Task.objects.filter(enabled=True)  # Solo obtiene tareas
-    disabled_tasks = Task.objects.filter(enabled=False)
+    print(permisos) # Solo obtiene tareas
+    users = User.objects.all()
+    for user in users:
+        try:
+            short_name = user.name_short()  # Aquí podría estar el error
+            # Puedes hacer algo con short_name
+        except IndexError as e:
+            # Maneja el error aquí
+            short_name = "Nombre no disponible"
+            print(f"Error en name_short para el usuario {user.email}: {e}")
+
     for task in tasks:
          duration = task.duration  # Acceder como propiedad, sin paréntesis
          if duration:
@@ -27,7 +46,7 @@ def task_list(request):
          else:
             task.duration_days = task.duration_hours = task.duration_minutes = None
 
-    return render(request, 'tasks/task_list.html', {'tasks': tasks,'disabled_tasks':disabled_tasks, "permisos": permisos})
+    return render(request, 'tasks/task_list.html', {'tasks': tasks,'users':users, "permisos": permisos})
 
 
 # Vista para crear una nueva tarea
@@ -63,7 +82,7 @@ def task_create(request):
 @login_required
 def task_edit(request, pk):
     user = request.user
-    print("Usuario username:", user.username)
+    print("Usuario username:", user.name)
     print("Usuario autenticado:", user.is_authenticated)
 
     if not  user.is_authenticated:
@@ -128,21 +147,6 @@ def task_detail(request, pk):
     permisos = request.user.get_all_permissions()
     task = get_object_or_404(Task, pk=pk)
     return render(request, 'tasks/task_detail.html', {'task': task,'permisos':permisos})
-
-
-
-def register(request):
-    if request.method == 'POST':
-        form = UserCreationForm(request.POST)
-        if form.is_valid():
-            user = form.save()
-            login(request, user)  # Inicia sesión al usuario después del registro
-            messages.success(request, '¡Te has registrado exitosamente!')
-            return redirect('task_list')  # Redirige a la lista de tareas
-    else:
-        form = UserCreationForm()
-
-    return render(request, 'tasks/register.html', {'form': form})
 
 
 

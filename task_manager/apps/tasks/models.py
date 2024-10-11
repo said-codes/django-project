@@ -3,6 +3,7 @@ from rest_framework.authtoken.models import Token
 from django.contrib import admin
 from django.db import models
 from django.utils import timezone
+from apps.users.models import *
 
 class Task(models.Model):
     title = models.CharField(max_length=255)

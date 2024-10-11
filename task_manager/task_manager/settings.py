@@ -151,6 +151,8 @@ LOGIN_REDIRECT_URL = 'task_list'
 LOGOUT_REDIRECT_URL = 'login'
 
 
+AUTH_USER_MODEL = 'users.User'
+
 SESSION_COOKIE_AGE = 1209600  # 2 semanas, puedes cambiarlo
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # Expira al cerrar el navegador
 

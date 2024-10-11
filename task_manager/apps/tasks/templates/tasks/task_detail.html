@@ -9,11 +9,15 @@
     <p><strong>Última Actualización:</strong> {{ task.updated_at|date:"Y-m-d H:i:s" }}</p>
     <p><strong>Completado:</strong> {{ task.completed|yesno:"Sí,No" }}</p>
     {% if "tasks.change_task" in permisos %}
-    <a href="{% url 'task_edit' task.id %}" class="btn btn-warning">Editar</a>
-    {%endif%}
+    <a href="{% url 'task_edit' task.id %}" class="btn btn-warning btn-circle btn-sm mx-1" title="Editar">
+        <i class="fas fa-edit"></i>
+    </a>
+    {% endif %}
     {% if "tasks.delete_task" in permisos %}
-    <a href="{% url 'task_delete' task.id %}" class="btn btn-danger">Eliminar</a>
-    {%endif%}
+    <a href="{% url 'task_delete' task.id %}" class="btn btn-danger btn-circle btn-sm mx-1" title="Eliminar">
+        <i class="fas fa-trash"></i>
+    </a>
+    {% endif %}
     <a href="{% url 'task_list' %}" class="btn btn-secondary">Volver a la lista</a>
 </div>
 {% endblock %}

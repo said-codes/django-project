@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Perfil de Usuario{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="h3 mb-4 text-gray-800">Perfil de Usuario</h1>
+    <div class="row">
+        <div class="col-lg-4">
+            <!-- Imagen de perfil más pequeña y con estilos de SB Admin 2 -->
+            <div class="card shadow mb-4">
+                <div class="card-body text-center">
+                    <img src="{% if user.avatar %}{{ user.avatar.url }}{% else %}{% static 'sb_admin_2/img/undraw_profile.svg' %}{% endif %}" style="width: 150px; height: 150px;" alt="Foto de Perfil" class="img-profile rounded-circle" />
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-8">
+            <div class="card shadow mb-4">
+                <div class="card-body">
+                    <h5 class="card-title">Información Personal</h5>
+                    <p><strong>Nombre: </strong>{{ user.name_complete }}</p>
+                    <p><strong>Correo Electrónico: </strong>{{ user.email }}</p>
+                    <p><strong>Teléfono: </strong>{{ user.phone }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

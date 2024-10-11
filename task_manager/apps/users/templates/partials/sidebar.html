@@ -12,17 +12,25 @@
     <hr class="sidebar-divider my-0">
 
     <!-- Nav Item - Dashboard -->
-    <li class="nav-item">
+    <li class="nav-item {% if request.path == '/' %}active{% endif %}">
         <a class="nav-link" href="{% url 'task_list' %}">
             <i class="fas fa-fw fa-list"></i>
             <span>Lista de Tareas</span>
         </a>
     </li>
     {% if user.is_superuser %}  <!-- Verifica si el usuario es admin -->
-    <li class="nav-item">
+    <li class="nav-item {% if request.path == '/users/' %}active{% endif %}">
         <a class="nav-link" href="{% url 'user_list' %}">
             <i class="fas fa-fw fa-users"></i>
             <span>Usuarios</span>
+        </a>
+    </li>
+    {%endif%}
+    {% if user.is_superuser %}  <!-- Verifica si el usuario es admin -->
+    <li class="nav-item {% if request.path == '/customers/' %}active{% endif %}">
+        <a class="nav-link" href="{% url 'customer_list' %}">
+            <i class="fas fa-fw fa-user-friends"></i>
+            <span>Clientes</span>
         </a>
     </li>
     {%endif%}
