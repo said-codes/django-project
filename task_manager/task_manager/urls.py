@@ -19,6 +19,7 @@ from django.urls import path
 from django.urls import path, include
 from django.conf.urls.static import static
 from django.conf import settings
+from rest_framework.documentation import include_docs_urls
 
 
 
@@ -26,6 +27,10 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('apps.tasks.urls')),
     path('', include('apps.users.urls')),
+    path('api/v1/', include('apps.api.urls')),
+    path('docs/',include_docs_urls(title='Api Documentation'))
+
+
 ]
 
 

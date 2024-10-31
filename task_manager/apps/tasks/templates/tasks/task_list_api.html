@@ -1,0 +1,426 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Lista de Tareas{% endblock %}
+
+{% block content %}
+<div class="container">
+    {% if "tasks.add_task" in permisos %}
+    <div class="d-flex justify-content-start mb-3">
+        <!-- Button trigger modal -->
+        <button type="button" id="createTaskButton" class="btn btn-primary" data-toggle="modal" data-target="#modalCrearTarea">
+            <i class="fas fa-plus fa-sm text-white-50"></i>
+            Crear Nueva Tarea
+        </button>
+    </div>
+    {% endif %}
+    <h1>Lista de Tareas</h1>
+    <table class="table-responsive display" id="tasksTable">
+        <thead>
+            <tr>
+                <th>Título</th>
+                <th>Descripción</th>
+                <th>Fecha de Creación</th>
+                <th>Última Actualización</th>
+                <th>Completado</th>
+                <th>Duración</th>
+                {% if "tasks.change_task" in permisos and "tasks.delete_task" in permisos %}
+                <th>Acciones</th>
+                {% endif %}
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Las filas se llenarán dinámicamente con JavaScript -->
+        </tbody>
+    </table>
+</div>
+<!-- Modal -->
+<div class="modal" id="modalCrearTarea" tabindex="-1" role="dialog" aria-labelledby="modalCrearTareaLabel" aria-hidden="true">
+<div class="modal-dialog" role="document">
+    <div class="modal-content">
+    <div class="modal-header">
+        <h5 class="modal-title" id="modalCrearTareaLabel">Formulario de Tarea</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    <div class="modal-body">
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="title">Título</label>
+                <input type="text" class="form-control" id="new-title" name="title" placeholder="Ingrese el título" required>
+            </div>
+            <div class="form-group">
+                <label for="description">Descripción</label>
+                <textarea class="form-control" id="new-description" name="description" rows="3" placeholder="Ingrese la descripción"></textarea>
+            </div>
+            <div class="form-group form-check">
+                <input type="checkbox" class="form-check-input" id="new-completed" name="completed">
+                <label class="form-check-label" for="completed">¿Tarea completada?</label>
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" id="saveNewTaskButton" class="btn btn-primary">Save changes</button>
+    </div>
+    </div>
+</div>
+</div>
+  <!-- Modal Detalle-->
+  <div class="modal" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="editModalLabel">Editar Tarea</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+            <div class="container-fluid">
+
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Formulario de Edición de Tarea</h6>
+                    </div>
+                    <div class="card-body">
+                        <form method="post" id="edit-task-form">
+                            {% csrf_token %}
+                            <div class="form-group">
+                                <label for="title">Título</label>
+                                <input type="text" class="form-control" id="title" name="title" placeholder="Ingrese el título" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="description">Descripción</label>
+                                <textarea class="form-control" id="description" name="description" rows="3" placeholder="Ingrese la descripción"></textarea>
+                            </div>
+                            <div class="form-group form-check">
+                                <input type="checkbox" class="form-check-input" id="completed" name="completed">
+                                <label class="form-check-label" for="completed">¿Tarea completada?</label>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+          <button type="submit" id="saveChangesButton" class="btn btn-primary" >Guardar Cambios</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Button trigger modal -->
+
+
+  <!-- Modal -->
+<!-- Modal de Eliminación -->
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Eliminar Tarea</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>¿Estás seguro de que deseas eliminar la tarea?</p>
+                <form id="delete-task-form" method="post">
+                    {% csrf_token %}
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                <button type="submit" id="confirmChangeStatus" class="btn btn-danger">Eliminar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+  <!-- Modal -->
+  <div class="modal fade" id="reactivateModal" tabindex="-1" role="dialog" aria-labelledby="reactivateModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Reactivar Tarea</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+            <p>¿Estás seguro de que deseas reactivar la Tarea ?</p>
+            <form method="post" id="reactivate-task-form">
+              {% csrf_token %}
+            </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+          <button type="button" id="confirmReactivateStatus" class="btn btn-success">Reactivar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock content %}
+
+{% block extra_js %}
+
+
+<script>
+$(document).ready(function() {
+    let tasksTable;
+    let tasks;
+    // Inicializa el DataTable
+    axios.get('/api/v1/tasks/').then(response => {
+         tasks = response.data;
+
+        // Obtener la referencia de la tabla
+        tasksTable = $('#tasksTable').DataTable({
+            "paging": true,
+            "data": tasks,
+            "columns": [
+                {data: "title", className:"text-center"},
+                {data: "description", className:"text-center"},
+                {data: "created_at", className:"text-center"},
+                {data: "updated_at", className:"text-center"},
+                {
+                    data: "completed",
+                    render: function(data, type, row, meta) {
+                        return data ? '<span class="badge bg-success">Completado</span>' :
+                                      '<span class="badge bg-danger">No Completado</span>';
+                    }
+                },
+                {data: "formatted_duration"},
+                {
+                    data: null,
+                    render: function(data, type, row, meta) {
+                        if (row.enabled) {
+                            return `
+                                <button type="button" class="btn btn-warning btn-circle btn-sm mx-1 edit-btn" data-task-id="${row.id}" data-toggle="modal" data-target="#editModal" title="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <a href="/tasks/detail_api/${row.id}/" class="btn btn-info btn-circle btn-sm mx-1" title="Detalles">
+                                    <i class="fas fa-info-circle"></i>
+                                </a>
+                                <button type="button" class="btn btn-danger btn-circle btn-sm mx-1" data-task-id="${row.id}" data-toggle="modal" data-target="#deleteModal">
+                                    <i class="fas fa-trash"></i>
+                                </button>`;
+                        } else {
+                            return `
+                                <button type="button" class="btn btn-success btn-circle btn-sm mx-1" data-toggle="modal" data-task-id="${row.id}" data-target="#reactivateModal">
+                                    <i class="fas fa-redo"></i>
+                                </button>
+                                <a href="/tasks/detail_api/${row.id}/" class="btn btn-info btn-circle btn-sm mx-1" title="Detalles">
+                                    <i class="fas fa-info-circle"></i>
+                                </a>`;
+                        }
+                    }
+                }
+            ],
+            language: {
+                "url": "{% static 'datatable/spanish-plugin.json' %}"
+            }
+        });
+    })
+    .catch(error => {
+        console.error("Error al cargar los datos de tareas:", error);
+    });
+
+    // Función para rellenar los campos del modal
+    async function llenarModal(taskId) {
+        try {
+            const response = await axios.get(`/api/v1/tasks/${taskId}/`);
+            const task = response.data;
+
+            $('#editModal #title').val(task.title);
+            $('#editModal #description').val(task.description);
+            $('#editModal #completed').prop('checked', task.completed);
+        } catch (error) {
+            console.error('Error al obtener los detalles de la tarea:', error);
+        }
+    }
+
+    function hideModalEdit() {
+        $("#editModal").removeClass("in");
+        $(".modal-backdrop").remove();
+        $('body').removeClass('modal-open');
+        $('body').css('padding-right', '');
+        $("#editModal").hide();
+        //tasksTable.ajax.reload(); // Recargar la tabla sin reiniciar el
+        tasksTable.clear().rows.add(tasks).draw();
+    }
+
+    function hideModalCreate() {
+        $("#modalCrearTarea").removeClass("in");
+        $(".modal-backdrop").remove();
+        $('body').removeClass('modal-open');
+        $('body').css('padding-right', '');
+        $("#modalCrearTarea").hide();
+        //tasksTable.ajax.reload(); // Recargar la tabla sin reiniciar el
+        tasksTable.clear().rows.add(tasks).draw();
+    }
+
+    function hideModalDelete() {
+        $("#deleteModal").removeClass("in");
+        $(".modal-backdrop").remove();
+        $('body').removeClass('modal-open');
+        $('body').css('padding-right', '');
+        $("#deleteModal").hide();
+        //tasksTable.ajax.reload(); // Recargar la tabla sin reiniciar el
+        tasksTable.clear().rows.add(tasks).draw();
+    }
+    function hideModalReactivate() {
+        $("#reactivateModal").removeClass("in");
+        $(".modal-backdrop").remove();
+        $('body').removeClass('modal-open');
+        $('body').css('padding-right', '');
+        $("#reactivateModal").hide();
+        //tasksTable.ajax.reload(); // Recargar la tabla sin reiniciar el
+        tasksTable.clear().rows.add(tasks).draw();
+    }
+
+    // Función para actualizar la API
+    async function actualizarApi(taskId) {
+        const updatedTask = {
+            title: $('#editModal #title').val(),
+            description: $('#editModal #description').val(),
+            completed: $('#editModal #completed').is(':checked')
+        };
+
+        try {
+            await axios.put(`/api/v1/tasks/${taskId}/`, updatedTask, {
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                }
+            });
+
+            hideModalEdit(); // Cerrar el modal
+        } catch (error) {
+            console.error('Error al actualizar la tarea:', error);
+        }
+    }
+
+    // Manejo del evento al hacer clic en el botón de editar
+    $('#tasksTable').on('click', '.edit-btn', function() {
+        const taskId = $(this).data('task-id');
+        $('#editModal').data('task-id', taskId); // Guardar el ID de la tarea en el modal
+
+        // Llenar el modal con los datos de la tarea
+        llenarModal(taskId);
+    });
+
+    // Manejo del evento para guardar los cambios
+    $('#saveChangesButton').on('click', function() {
+    const taskId = $('#editModal').data('task-id'); // Obtener el ID del modal
+    actualizarApi(taskId); // Llama a la función para actualizar la API
+});
+
+
+    // Función para crear una nueva tarea
+    async function crearTarea() {
+
+        // Función para limpiar los campos del formulario
+        function limpiarFormulario() {
+            $('#new-title').val('');           // Limpiar el campo del título
+            $('#new-description').val('');      // Limpiar el campo de la descripción
+            $('#new-completed').prop('checked', false); // Desmarcar el checkbox de completado
+        }
+
+
+        const newTask = {
+            title: $('#new-title').val(),
+            description: $('#new-description').val(),
+            completed: $('#new-completed').is(':checked')
+        };
+
+        try {
+            await axios.post('/api/v1/tasks/', newTask, {
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                }
+            });
+
+        hideModalCreate();
+        limpiarFormulario();
+
+        } catch (error) {
+            console.error('Error al crear la tarea:', error);
+        }
+    }
+
+    $('#saveNewTaskButton').on('click', function() {
+    crearTarea(); // Llama a la función para crear la nueva tarea
+});
+
+
+// Abre el modal de eliminación y configura el `data-id` en el botón de confirmación
+$('#tasksTable').on('click', '.btn-danger', function() {
+    const taskId = $(this).data('task-id');
+    $('#confirmChangeStatus').data('task-id', taskId); // Cambia `data-id` a `data-task-id`
+});
+
+// Manejo del evento para confirmar el cambio de estado (eliminar o desactivar tarea)
+$('#confirmChangeStatus').on('click', async function() {
+    const taskId = $(this).data('task-id');  // Usa `data-task-id` aquí
+    if (taskId) {
+        try {
+            const response = await axios.get(`/api/v1/tasks/${taskId}/`);
+            const task = response.data;
+
+            // Cambia el estado de `enabled` de la tarea
+            task.enabled = !task.enabled;
+
+            await axios.patch(`/api/v1/tasks/${taskId}/`, { enabled: task.enabled }, {
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                }
+            });
+
+            hideModalDelete();
+        } catch (error) {
+            console.error('Error al actualizar el estado de la tarea:', error);
+        }
+    }
+});
+
+
+// Abre el modal de reactivación y configura el `data-id` en el botón de confirmación
+$('#tasksTable').on('click','.btn-success', function() {
+    const taskId = $(this).data('task-id');
+    $('#confirmReactivateStatus').data('task-id', taskId); // Cambia `data-id` a `data-task-id`
+});
+
+// Manejo del evento para confirmar la reactivación del estado (activar tarea)
+$('#confirmReactivateStatus').on('click', async function() {
+    const taskId = $(this).data('task-id');  // Usa `data-task-id` aquí
+    if (taskId) {
+        try {
+            const response = await axios.get(`/api/v1/tasks/${taskId}/`);
+            const task = response.data;
+
+            // Cambia el estado de `enabled` de la tarea a true
+            task.enabled = true;
+
+            await axios.patch(`/api/v1/tasks/${taskId}/`, { enabled: task.enabled }, {
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                }
+            });
+
+            hideModalReactivate(); // Cambia este nombre según el método que uses para ocultar el modal de reactivación
+        } catch (error) {
+            console.error('Error al reactivar el estado de la tarea:', error);
+        }
+    }
+});
+
+
+});
+
+</script>
+
+
+
+{% endblock extra_js %}

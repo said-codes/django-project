@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Detalles de la Tarea{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 id="task-title"></h1>
+    <p><strong>Descripción:</strong> <span id="task-description"></span></p>
+    <p><strong>Fecha de Creación:</strong> <span id="task-created-at"></span></p>
+    <p><strong>Última Actualización:</strong> <span id="task-updated-at"></span></p>
+    <p><strong>Completado:</strong> <span id="task-completed"></span></p>
+
+    {% if "tasks.change_task" in permisos %}
+    <a id="edit-task" class="btn btn-warning btn-circle btn-sm mx-1" title="Editar">
+        <i class="fas fa-edit"></i>
+    </a>
+    {% endif %}
+
+    {% if "tasks.delete_task" in permisos %}
+    <a id="delete-task" class="btn btn-danger btn-circle btn-sm mx-1" title="Eliminar">
+        <i class="fas fa-trash"></i>
+    </a>
+    {% endif %}
+
+    <a href="{% url 'task_list_api' %}" class="btn btn-secondary">Volver a la lista</a>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+     // Obtener el parámetro task_id de la URL
+
+  const taskId = {{pk}} // Esto obtiene el valor de task
+  console.log(taskId);
+
+// script.js
+
+// Función para obtener los detalles de la tarea
+function getTaskDetails(taskId) {
+  axios.get(`/api/v1/tasks/${taskId}/`) // Asegúrate de que esta URL sea la correcta
+      .then(response => {
+          const task = response.data;
+          console.log(task)
+          document.getElementById('task-title').innerText = task.title;
+          document.getElementById('task-description').innerText = task.description;
+          document.getElementById('task-created-at').innerText = new Date(task.created_at).toLocaleString();
+          document.getElementById('task-updated-at').innerText = new Date(task.updated_at).toLocaleString();
+          document.getElementById('task-completed').innerText = task.completed ? 'Sí' : 'No';
+
+          // Si tienes permisos para editar y eliminar, añade la URL
+          const editTaskLink = document.getElementById('edit-task');
+          if (editTaskLink) {
+              editTaskLink.href = `/tasks/edit/api/v1/?task_id=${taskId}`; // Ajusta la URL de edición según tu configuración de URL
+          }
+
+          const deleteTaskLink = document.getElementById('delete-task');
+          if (deleteTaskLink) {
+              deleteTaskLink.href = `/tasks/delete/?task_id=${taskId}`; // Ajusta la URL de eliminación según tu configuración de URL
+          }
+      })
+      .catch(error => {
+          console.error('Error al obtener los detalles de la tarea:', error);
+          // Aquí puedes manejar el error, como mostrar un mensaje al usuario
+      });
+}
+
+// Llamar a la función para obtener los detalles de la tarea
+getTaskDetails(taskId);
+</script>
+{% endblock %}

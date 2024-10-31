@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Editar Tarea{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h1 class="h3 mb-4 text-gray-800">Editar Tarea</h1>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Formulario de Edición de Tarea</h6>
+        </div>
+        <div class="card-body">
+            <form method="post" id="edit-task-form">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="title">Título</label>
+                    <input type="text" class="form-control" id="title" name="title" placeholder="Ingrese el título" required>
+                </div>
+                <div class="form-group">
+                    <label for="description">Descripción</label>
+                    <textarea class="form-control" id="description" name="description" rows="3" placeholder="Ingrese la descripción"></textarea>
+                </div>
+                <div class="form-group form-check">
+                    <input type="checkbox" class="form-check-input" id="completed" name="completed">
+                    <label class="form-check-label" for="completed">¿Tarea completada?</label>
+                </div>
+                <button type="submit" class="btn btn-primary">Actualizar Tarea</button>
+                <a href="{% url 'task_list_api' %}" class="btn btn-secondary">Cancelar</a>
+            </form>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    // Pasar la URL generada por Django a una variable de JavaScript
+    var taskListApiUrl = "{% url 'task_list_api' %}";  // La URL generada por Django
+</script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="{% static 'sb_admin_2/js/task_edit.js' %}"></script> <!-- Importa el archivo JavaScript aquí -->
+{% endblock %}

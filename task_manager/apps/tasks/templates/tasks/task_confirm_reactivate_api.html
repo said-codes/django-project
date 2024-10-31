@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+<h2>Reactivar Tarea</h2>
+<p>¿Estás seguro de que deseas recativar la Tarea ?</p>
+<form method="post" id="reactivate-task-form">
+  {% csrf_token %}
+  <button type="submit" class="btn btn-success">Reactivar</button>
+  <a href="{% url 'task_list_api' %}" class="btn btn-secondary">Cancelar</a>
+</form>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="{% static 'sb_admin_2/js/task_reactivate.js' %}"></script> <!-- Importa el archivo JavaScript aquí -->
+{% endblock %}

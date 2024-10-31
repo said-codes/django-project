@@ -3,6 +3,8 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 import dj_database_url
+from rest_framework.permissions import AllowAny
+
 
 # Cargar archivo .env
 load_dotenv()
@@ -19,7 +21,6 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
-from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -34,7 +35,7 @@ SECRET_KEY = 'django-insecure-#n0so+b43)=)i#=ic7du6zs9&(ngb05n42j)*ie4r$k-2vul*s
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -50,6 +51,8 @@ INSTALLED_APPS = [
     'apps.users',
     'rest_framework',
     'rest_framework.authtoken',
+    'coreapi',
+    'apps.api',
     'phone_field',
 ]
 
@@ -61,6 +64,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
 ]
 
 ROOT_URLCONF = 'task_manager.urls'
@@ -87,7 +91,7 @@ WSGI_APPLICATION = 'task_manager.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
-        'default': dj_database_url.config(default=os.getenv('DATABASE_URL'))
+    'default': dj_database_url.config(default=os.getenv('DATABASE_URL'))
 }
 
 """
@@ -157,12 +161,51 @@ SESSION_COOKIE_AGE = 1209600  # 2 semanas, puedes cambiarlo
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True  # Expira al cerrar el navegador
 
 
-
 MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
-
 
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 MEDIA_URL = '//'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'uploads/')
+
+
+"""
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        #'rest_framework.schemas.coreapi.AutoSchema',
+        'rest_framework.authentication.TokenAuthentication',  # Autenticación por token
+        # 'rest_framework.authentication.SessionAuthentication',  # Para usar sesiones
+    ],
+    #'DEFAULT_PERMISSION_CLASSES': [
+    #   'rest_framework.permissions.IsAuthenticated',  # Requiere autenticación por defecto
+    #],
+}
+"""
+
+REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema' ,
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+}
+
+
+CORS_ALLOW_ALL_ORIGINS = True
+
+
+# Deshabilitar CSRF para todas las rutas de API
+CSRF_TRUSTED_ORIGINS = ['http://localhost:8000/api/v1/']
+
+import os
+
+# Asegúrate de tener esto en tu archivo settings.py
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
+]

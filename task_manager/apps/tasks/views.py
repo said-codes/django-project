@@ -7,7 +7,13 @@ from .forms import TaskForm
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from .models import User
-
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
+from django.views.decorators.http import require_http_methods
+from rest_framework import status
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
+from apps.api.serializers import TaskSerializer
 
 
 # Vista para listar todas las tareas
@@ -18,14 +24,14 @@ def task_list(request):
     groups = user.groups.all()
     grupos = [grupo.name for grupo in groups]
     tasks = None
-    if "Consultor" in grupos:
+    if "consultor" in grupos:
         tasks = Task.objects.filter(enabled=True).order_by("-enabled")
     else:
         tasks = Task.objects.all().order_by("-enabled")
 
     # Obtener los permisos del usuario actual
     permisos = request.user.get_all_permissions()
-    print(permisos) # Solo obtiene tareas
+    print(permisos)  # Solo obtiene tareas
     users = User.objects.all()
     for user in users:
         try:
@@ -37,17 +43,32 @@ def task_list(request):
             print(f"Error en name_short para el usuario {user.email}: {e}")
 
     for task in tasks:
-         duration = task.duration  # Acceder como propiedad, sin paréntesis
-         if duration:
+        duration = task.duration  # Acceder como propiedad, sin paréntesis
+        if duration:
             # Calcular días, horas y minutos
             task.duration_days = duration // (24 * 3600)  # Días
             task.duration_hours = (duration % (24 * 3600)) // 3600  # Horas
             task.duration_minutes = (duration % 3600) // 60  # Minutos
-         else:
+        else:
             task.duration_days = task.duration_hours = task.duration_minutes = None
 
-    return render(request, 'tasks/task_list.html', {'tasks': tasks,'users':users, "permisos": permisos})
+    return render(request, 'tasks/task_list.html', {'tasks': tasks, 'users': users, "permisos": permisos})
 
+@login_required
+def task_list_api(request):
+   tasks_api = None
+   user = request.user
+   groups = user.groups.all()
+   grupos = [grupo.name for grupo in groups]
+   permisos = request.user.get_all_permissions()
+
+
+   return render(request,'tasks/task_list_api.html',{'permisos': permisos})
+
+@login_required
+def task_detail_api(request, pk):
+    permisos = request.user.get_all_permissions()
+    return render(request, 'tasks/task_detail_api.html',{'permisos':permisos, "pk":pk})
 
 # Vista para crear una nueva tarea
 @login_required
@@ -58,7 +79,7 @@ def task_create(request):
     print("Grupos del usuario:", grupos)
 
     # Redirigir a la lista de tareas si el usuario es un consultor
-    if "Consultor" in grupos:
+    if "consultor" in grupos:
         return redirect("task_list")
 
     if request.method == 'POST':
@@ -67,15 +88,17 @@ def task_create(request):
             task = form.save(commit=False)  # No guardes inmediatamente
             # Aquí no es necesario asignar created_at, ya que está manejado por el modelo
             task.save()  # Ahora guarda la tarea
-            messages.success(request, "Tarea creada exitosamente.")  # Mensaje de éxito
+            # Mensaje de éxito
+            messages.success(request, "Tarea creada exitosamente.")
             return redirect('task_list')
         else:
-            messages.error(request, "Error al crear la tarea. Por favor verifica los datos.")  # Mensaje de error
+            # Mensaje de error
+            messages.error(
+                request, "Error al crear la tarea. Por favor verifica los datos.")
     else:
         form = TaskForm()
 
     return render(request, 'tasks/task_form.html', {'form': form})
-
 
 
 # Vista para editar una tarea existente
@@ -85,14 +108,14 @@ def task_edit(request, pk):
     print("Usuario username:", user.name)
     print("Usuario autenticado:", user.is_authenticated)
 
-    if not  user.is_authenticated:
+    if not user.is_authenticated:
         return redirect("login")
 
     groups = user.groups.all()
     grupos = [grupo.name for grupo in groups]
     print("Grupos del usuario:", grupos)
 
-    if "Consultor" in grupos:
+    if "consultor" in grupos:
         return redirect("task_list")
 
     task = get_object_or_404(Task, pk=pk)
@@ -101,37 +124,32 @@ def task_edit(request, pk):
         form = TaskForm(request.POST, instance=task)
         if form.is_valid():
             form.save()
-            return redirect('task_list')  # Redirige a la lista de tareas después de guardar.
+            # Redirige a la lista de tareas después de guardar.
+            return redirect('task_list')
     else:
         form = TaskForm(instance=task)
 
     return render(request, 'tasks/task_edit.html', {'form': form})
 
-
-
-
-# Vista para eliminar una tarea
-"""
 @login_required
-def task_delete(request, pk):
-    user = request.user
-    groups = user.groups.all()
-    grupos = [grupo.name for grupo in groups]
-    print("Grupos del usuario:", grupos)
+def task_edit_api(request,pk):
+    return render(request,'',{'pk':pk})
 
-    if "Consultor" in grupos:
-        return redirect("task_list")
 
-    if "Usuario" in grupos:
-        return redirect("task_list")
+@login_required
+def task_delete_api(request):
+    return render(request,'tasks/task_confirm_delete_api.html',{})
 
+@login_required
+def task_reactivate_api(request):
+    return render(request,'tasks/task_confirm_reactivate_api.html',{})
+
+# Vista para ver los detalles de una tarea específica
+@login_required
+def task_detail(request, pk):
+    permisos = request.user.get_all_permissions()
     task = get_object_or_404(Task, pk=pk)
-    if request.method == 'POST':
-        task.delete()
-        return redirect('task_list')
-    return render(request, 'tasks/task_confirm_delete.html', {'task': task})
-"""
-
+    return render(request, 'tasks/task_detail.html', {'task': task, 'permisos': permisos})
 
 @login_required
 def task_delete(request, pk):
@@ -141,17 +159,10 @@ def task_delete(request, pk):
     return redirect('task_list')  # Redirige a la lista de tareas
 
 
-# Vista para ver los detalles de una tarea específica
-@login_required
-def task_detail(request, pk):
-    permisos = request.user.get_all_permissions()
-    task = get_object_or_404(Task, pk=pk)
-    return render(request, 'tasks/task_detail.html', {'task': task,'permisos':permisos})
-
-
-
 def task_reactivate(request, pk):
     task = get_object_or_404(Task, pk=pk)
     task.enabled = True  # Cambia el estado a habilitado
     task.save()
     return redirect('task_list')
+
+

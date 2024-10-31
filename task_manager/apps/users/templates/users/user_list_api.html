@@ -1,0 +1,365 @@
+{% extends "base.html" %} {% load static %} {% block content %}
+<div class="container-fluid">
+  <!-- Page Heading -->
+  <div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">{{ title }}</h1>
+    <button
+      type="button"
+      class="btn btn-primary"
+      data-toggle="modal"
+      data-target="#createModal"
+    >
+      <i class="fas fa-plus fa-sm text-white-50"></i> Crear Nuevo Usuario
+    </button>
+  </div>
+
+  <!-- DataTales Example -->
+  <div class="card shadow mb-4">
+    <div class="card-header py-3">
+      <h6 class="m-0 font-weight-bold text-primary">Lista de Usuarios</h6>
+    </div>
+    <div class="card-body">
+      <div class="table-responsive">
+        <table
+          class="table-responsive display"
+          id="usersTable"
+          width="100%"
+          cellspacing="0"
+        >
+          <thead>
+            <tr>
+              <th>Foto</th>
+              <th>ID</th>
+              <th>Nombre</th>
+              <th>Apellido</th>
+              <th>Email</th>
+              <th>Teléfono</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div
+  class="modal fade"
+  id="createModal"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="createModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="createModalLabel">Crear Nuevo Usuario</h5>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Close"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form method="post" id="userForm" enctype="multipart/form-data">
+          {% csrf_token %}
+          <div class="form-group">
+            {{ form.name.label_tag }} {{ form.name }}
+          </div>
+          <div class="form-group">
+            {{ form.lastname.label_tag }} {{ form.lastname }}
+          </div>
+          <div class="form-group">
+            {{ form.email.label_tag }} {{ form.email }}
+          </div>
+          <div class="form-group">
+            {{ form.phone.label_tag }} {{ form.phone }}
+          </div>
+          <div class="form-group">
+            {{ form.avatar.label_tag }} {{ form.avatar }}
+          </div>
+          <div class="form-group">
+            {{ form.groups.label_tag }} {{ form.groups }}
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-dismiss="modal"
+            >
+              Cerrar
+            </button>
+            <button type="submit" class="btn btn-primary">Crear Usuario</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Edición -->
+<div
+  class="modal fade"
+  id="editModal"
+  tabindex="-1"
+  role="dialog"
+  aria-labelledby="editModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editModalLabel">Editar Usuario</h5>
+        <button
+          type="button"
+          class="close"
+          data-dismiss="modal"
+          aria-label="Close"
+        >
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form method="POST" id="editForm" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="form-group">
+              <label for="id_name">Nombre</label>
+              <input type="text" class="form-control" id="id_name" name="name" required>
+            </div>
+            <div class="form-group">
+              <label for="id_lastname">Apellido</label>
+              <input type="text" class="form-control" id="id_lastname" name="lastname" required>
+            </div>
+            <div class="form-group">
+              <label for="id_email">Email</label>
+              <input type="email" class="form-control" id="id_email" name="email" required>
+            </div>
+            <div class="form-group">
+              <label for="id_phone">Teléfono</label>
+              <input type="text" class="form-control" id="id_phone" name="phone" required>
+            </div>
+            <div class="form-group">
+                <label for="avatarPreview">Avatar Actual</label>
+                <img id="avatarPreview" src="" alt="Avatar" class="img-profile rounded-circle" style="width: 50px; height: 50px;">
+                <input type="file" class="form-control" id="id_avatar" name="avatar">
+            </div>
+
+            <div class="form-group">
+              <label for="select_group">Grupos</label>
+              <select id="select_group" name="groups">
+              </select>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                <button type="submit" id="saveChangesButton" class="btn btn-primary">Guardar cambios</button>
+            </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+{% endblock %} {% block extra_js %}
+<script>
+</script>
+<script>
+  $(document).ready(function () {
+    let usersTable;
+    let users;
+
+    // Inicializa el DataTable
+    axios
+      .get('/api/v1/users/')
+      .then((response) => {
+        users = response.data;
+        console.log(users);
+
+        // Obtener la referencia de la tabla
+        usersTable = $('#usersTable').DataTable({
+          paging: true,
+          data: users,
+          columns: [
+            {
+              data: 'avatar',
+              className: 'text-center',
+              render: function (data, type, row) {
+                return data
+                  ? `<img src="${data}" alt="Avatar" class="img-profile rounded-circle" style="width: 50px; height: 50px;">`
+                  : `<img src="{% static 'sb-admin/img/undraw_profile.svg' %}" alt="Avatar" class="img-profile rounded-circle" style="width: 50px; height: 50px;">`;
+              },
+            },
+            { data: 'id', className: 'text-center' },
+            { data: 'name', className: 'text-center' },
+            { data: 'lastname', className: 'text-center' },
+            { data: 'email', className: 'text-center' },
+            { data: 'phone', className: 'text-center' },
+            {
+              data: null,
+              render: function (data, type, row, meta) {
+                return `
+                <button type="button" class="btn btn-warning btn-circle btn-sm mx-1 edit-btn" data-user-id="${row.id}" data-toggle="modal" data-target="#editModal" title="Editar">
+                    <i class="fas fa-edit"></i>
+                </button>
+                <button type="button" class="btn btn-danger btn-circle btn-sm mx-1 delete-btn" data-user-id="${row.id}" data-toggle="modal" data-target="#deleteModal" title="Eliminar">
+                    <i class="fas fa-trash"></i>
+                </button>
+                `;
+
+              },
+            },
+          ],
+          language: {
+            url: "{% static 'datatable/spanish-plugin.json' %}",
+          },
+        });
+      })
+      .catch((error) => {
+        console.error('Error al cargar los datos de usuarios:', error);
+      });
+
+
+    $('#userForm').on('submit', function (e) {
+      e.preventDefault(); // Prevenir el envío normal del formulario
+      const formData = new FormData(this);
+
+      axios
+        .post('/api/v1/users/', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        })
+        .then((response) => {
+          $('#createModal').modal('hide'); // Cerrar el modal
+          usersTable.row.add(response.data).draw(); // Agregar nuevo usuario a la tabla
+          this.reset();
+        })
+        .catch((error) => {
+          console.error('Error al crear el usuario:', error);
+        });
+    });
+
+    function hideModalEdit() {
+        $("#editModal").removeClass("in");
+        $(".modal-backdrop").remove();
+        $('body').removeClass('modal-open');
+        $('body').css('padding-right', '');
+        $("#editModal").hide();
+        usersTable.clear().rows.add(users).draw();
+    }
+
+    function cargarGrupos() {
+    axios.get(`/api/v1/groups/`)
+        .then(response => {
+            const grupos = response.data;
+            const $selectElement = $('#select_group');
+            $selectElement.empty(); // Vaciar opciones existentes
+            grupos.unshift({
+                id: 0,
+                text: '------'
+            });
+            $selectElement.select2({
+                width: "100%",
+                placeholder: 'Seleccione un Grupo',
+                data: grupos
+            });
+
+            console.log("Opciones de grupos añadidas:", $selectElement.html());
+        })
+        .catch(error => {
+            console.error("Error al cargar los grupos:", error);
+        });
+}
+
+// Llama a la función para cargar los grupos cuando el documento esté listo o en el momento adecuado
+cargarGrupos();
+
+
+
+// Llenar modal con datos del usuario
+async function llenarModal(userId) {
+    try {
+        const response = await axios.get(`/api/v1/users/${userId}/`);
+        const user = response.data;
+        console.log(user)
+
+        // Completar los campos del formulario en el modal de edición
+        $('#id_name.form-control').val(user.name);
+        $('#id_lastname.form-control').val(user.lastname);
+        $('#id_email.form-control').val(user.email);
+        $('#id_phone.form-control').val(user.phone);
+        $('#id_avatar.form-control').val(user.avatar);
+        $('#select_group').val(user.groups[0]).trigger('change');
+
+
+        // Asignar grupos, si tienes un formato específico para ello
+        cargarGrupos();
+
+    } catch (error) {
+        console.error('Error al obtener los datos del usuario:', error);
+    }
+}
+
+$('#usersTable').on('click', '.edit-btn', function () {
+  const userId = $(this).data('user-id'); // Obtén el ID del botón de edición
+  $('#editModal').data('user-id', userId); // Almacena el ID en el modal
+
+  // Llenar modal con datos del usuario justo antes de mostrarlo
+  llenarModal(userId).then(() => {
+    $('#editModal').modal('show'); // Muestra el modal después de llenar los campos
+  });
+});
+
+let updatedUser;
+async function actualizarApi(userId) {
+  updatedUser = {
+    name:  $('#id_name.form-control').val(),
+    lastname:  $('#id_lastname.form-control').val(),
+    email: $('#id_email.form-control').val(),
+    phone: $('#id_phone.form-control').val(),
+    // Assuming the API expects a list of group IDs
+    groups: $('#select_group').val().split(',').map(Number), // Convert string to list of numbers (if applicable)
+  };
+
+  try {
+    const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    const response = await axios.put(`/api/v1/users/${userId}/`, updatedUser, {
+      headers: {
+        'Content-Type': 'application/json', // Set content type (might be required by your API)
+        'X-CSRFToken': csrftoken
+      }
+    });
+
+    // Handle successful update (e.g., display success message, update data table)
+    console.log('Usuario actualizado con éxito:', response.data);
+    // Update data table (implementation depends on your approach - could be redrawing the table with new data)
+
+  } catch (error) {
+    console.error('Error al actualizar el usuario:', error);
+    // Display an error message to the user (e.g., using a modal or alert)
+  }
+}
+// Manejo del evento para guardar los cambios
+$('#saveChangesButton').on('click', function() {
+    const userId = $('#editModal').data('user-id'); // Obtener el ID del modal
+    //console.log("userid",userId);
+    //console.log("Datos a enviar:", updatedUser );
+    console.log('Name:', $('#id_name.form-control').val());
+    console.log('Lastname:', $('#id_lastname.form-control').val());
+    console.log('Email:', $('#id_email.form-control').val());
+    console.log('Phone:', $('#id_phone.form-control').val());
+    console.log('Groups:', $('#select_group').val());
+
+    actualizarApi(userId); // Llama a la función para actualizar la API
+    hideModalEdit(); // Cerrar el modalón
+});
+
+  });
+</script>
+{% endblock %}

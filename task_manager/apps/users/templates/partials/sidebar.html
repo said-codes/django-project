@@ -37,5 +37,21 @@
 
     <!-- Divider -->
     <hr class="sidebar-divider">
+
+    <li class="nav-item {% if request.path == '/tasks/list_api/' %}active{% endif %}">
+        <a class="nav-link" href="{% url 'task_list_api' %}">
+            <i class="fas fa-fw fa-list"></i>
+            <span>Lista de Tareas API</span>
+        </a>
+    </li>
+
+    <li class="nav-item {% if request.path == '/users/list_api/' %}active{% endif %}">
+        <a class="nav-link" href="{% url 'user_list_api' %}">
+            <i class="fas fa-fw fa-list"></i>
+            <span>Lista de Usuarios API</span>
+        </a>
+    </li>
+    <!-- Divider -->
+    <hr class="sidebar-divider">
 </ul>
 <!-- End of Sidebar -->
