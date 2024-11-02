@@ -49,7 +49,6 @@ class UserSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         representation = super().to_representation(instance)
-        # Aquí no estamos filtrando por grupos, así que siempre se incluirá el ID
         return representation
 
 
@@ -57,7 +56,7 @@ class UserSerializer(serializers.ModelSerializer):
 class CustomerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Customer
-        fields = ['name', 'email', 'phone']
+        fields = ["id",'name', 'email', 'phone']
 
 
 

@@ -123,9 +123,12 @@ def task_edit(request, pk):
     if request.method == 'POST':
         form = TaskForm(request.POST, instance=task)
         if form.is_valid():
+            messages.success(request, "Tarea actualizada exitosamente.")
             form.save()
             # Redirige a la lista de tareas después de guardar.
             return redirect('task_list')
+        else:
+              messages.success(request, "Error al actualizar la tarea.")
     else:
         form = TaskForm(instance=task)
 
@@ -156,6 +159,7 @@ def task_delete(request, pk):
     task = get_object_or_404(Task, pk=pk)
     task.enabled = False  # Cambia el estado a deshabilitado
     task.save()
+    messages.success(request, "Tarea desabilitada exitosamente.")
     return redirect('task_list')  # Redirige a la lista de tareas
 
 
@@ -163,6 +167,7 @@ def task_reactivate(request, pk):
     task = get_object_or_404(Task, pk=pk)
     task.enabled = True  # Cambia el estado a habilitado
     task.save()
+    messages.success(request, "Tarea reactivada exitosamente.")
     return redirect('task_list')
 
 

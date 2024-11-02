@@ -40,6 +40,12 @@ urlpatterns = [
     path('users/reactivate_api/', views.user_reactivate_api, name='user_reactivate_api'),
 
 
+    path('customers/list_api/', views.customer_list_api, name='customer_list_api'),
+    path('customers/detail_api/<int:pk>/', views.customer_detail_api, name='customer_detail_api'),
+
+
+
+
 
 
 ]

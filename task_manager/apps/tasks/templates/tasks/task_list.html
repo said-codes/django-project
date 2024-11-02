@@ -108,4 +108,20 @@
         });
     });
 </script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        {% if messages %}
+            {% for message in messages %}
+                Swal.fire({
+                    title: '¡Atención!',
+                    text: "{{ message }}",
+                    icon: "{{ message.tags }}",  // 'success', 'error', etc.
+                    confirmButtonText: 'Aceptar'
+                });
+            {% endfor %}
+        {% endif %}
+    });
+</script>
+
 {% endblock extra_js %}

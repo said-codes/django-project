@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container-fluid">
+    <h1 class="h3 mb-4 text-gray-800">Detalles del Cliente</h1>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary" id="customerName"></h6>
+        </div>
+        <div class="card-body">
+            <div class="form-group">
+                <label for="customerEmail">Email:</label>
+                <input type="email" class="form-control" id="customerEmail" value="" readonly>
+            </div>
+            <div class="form-group">
+                <label for="customerPhone">Teléfono:</label>
+                <input type="text" class="form-control" id="customerPhone" value="" readonly>
+            </div>
+            <a href="{% url 'customer_list_api' %}" class="btn btn-primary">Volver a la lista</a>
+        </div>
+    </div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const customerId = {{ pk }}; // Asegúrate de que pk se esté pasando correctamente
+
+        // Función para obtener los detalles del cliente
+        function getCustomerDetails(customerId) {
+            axios.get(`/api/v1/customers/${customerId}/`)
+                .then(response => {
+                    const customer = response.data;
+                    console.log(customer); // Para verificar la respuesta
+
+                    // Asignar los datos a los campos
+                    document.getElementById('customerName').innerText = customer.name;
+                    document.getElementById('customerEmail').value = customer.email; 
+                    document.getElementById('customerPhone').value = customer.phone; 
+                })
+                .catch(error => {
+                    console.error('Error al obtener los detalles del cliente:', error);
+                });
+        }
+
+        // Llamar a la función para obtener los detalles del cliente
+        getCustomerDetails(customerId);
+    });
+</script>
+
+
+{% endblock %}

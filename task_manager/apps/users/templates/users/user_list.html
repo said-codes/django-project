@@ -37,7 +37,7 @@
                                 {% if user.avatar %}
                                     <img src="{{ user.avatar.url }}" alt="Foto" width="50" height="50" onerror="this.src='{% static 'sb_admin_2/img/undraw_profile.svg' %}'">
                                 {% else %}
-                                    <img src="{% static 'sb_admin_2/img/undraw_profile.svg' %}" alt="Foto por defecto" width="50" height="50">
+                                    <img src="{% static 'sb-admin/img/undraw_profile.svg' %}" alt="Foto por defecto" width="50" height="50">
                                 {% endif %}
                             </td>
                             {% if  user.enabled %}
@@ -79,4 +79,18 @@
         </div>
     </div>
 </div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        {% if messages %}
+            {% for message in messages %}
+                Swal.fire({
+                    title: '¡Atención!',
+                    text: "{{ message }}",
+                    icon: "{{ message.tags }}",
+                    confirmButtonText: 'Aceptar'
+                });
+            {% endfor %}
+        {% endif %}
+    });
+</script>
 {% endblock %}

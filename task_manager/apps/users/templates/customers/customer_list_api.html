@@ -1,0 +1,301 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Lista de Clientes{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1 class="h3 mb-4 text-gray-800">Lista de Clientes</h1>
+
+
+    <h1 class="h3 mb-0 text-gray-800">{{ title }}</h1>
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#createModal">
+        <i class="fas fa-plus fa-sm text-white-50"></i> Crear Nuevo Cliente
+    </button>
+
+    <table class="table-responsive display" id="customersTable">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Correo</th>
+                <th>Teléfono</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+</div>
+
+
+
+<!-- Modal -->
+<div class="modal fade" id="createModal" tabindex="-1" role="dialog" aria-labelledby="createModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Crear Cliente</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+
+                <form method="post" id="customerform" enctype="multipart/form-data" class="user">
+                    {% csrf_token %}
+
+                    <!-- Renderizando el formulario completo con form.as_p -->
+                    <div class="form-group">
+                        {{ form.as_p }}
+                    </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary">Save changes</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel"><Em>Editar cliente</Em></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-body">
+                    <form method="post" id="customerformedit" enctype="multipart/form-data" class="user">
+                        {% csrf_token %}
+
+                        <!-- Renderizando el formulario completo con form.as_p -->
+                        <div class="form-group">
+                            {{ form.as_p }}
+                        </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                <button type="button" id="saveChangesButtonUpdate" class="btn btn-primary">Actualizar cliente</button>
+            </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+<!-- Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Eliminar Cliente</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>¿Estás seguro de que deseas eliminar el cliente</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                <button type="button" id="deleteCustomer" class="btn btn-danger">Eliminar cliente</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function hideModalEdit() {
+        $('#editModal').modal('hide');
+        customersTable.clear().rows.add(customers).draw();
+    }
+
+    function hideModalCreate() {
+        $('#createModal').modal('hide');
+        customersTable.clear().rows.add(customers).draw();
+    }
+
+    function hideModalDelete(userId) {
+        $('#deleteModal').modal('hide');
+
+        // Elimina solo la fila del cliente que se eliminó
+        customersTable
+            .row($(`#customersTable .delete-btn[data-user-id="${userId}"]`).parents('tr'))
+            .remove()
+            .draw();
+    }
+
+  
+
+
+    $(document).ready(function () {
+        let customersTable;
+        let customers;
+
+        // Inicializa el DataTable
+        axios
+            .get('/api/v1/customers/')
+            .then((response) => {
+                customers = response.data;
+
+                // Obtener la referencia de la tabla
+                customersTable = $('#customersTable').DataTable({
+                    paging: true,
+                    data: customers,
+                    columns: [
+                        { data: 'name', className: 'text-center' },
+                        { data: 'email', className: 'text-center' },
+                        { data: 'phone', className: 'text-center' },
+                        {
+                            data: null,
+                            render: function (data, type, row) {
+                                return `
+                    <button type="button" class="btn btn-warning btn-circle btn-sm mx-1 edit-btn" data-user-id="${row.id}" data-toggle="modal" data-target="#editModal" title="Editar">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                      <a href="/customers/detail_api/${row.id}/" class="btn btn-info btn-circle btn-sm mx-1" title="Detalles">
+                                        <i class="fas fa-info-circle"></i>
+                                    </a>
+                    <button type="button" class="btn btn-danger btn-circle btn-sm mx-1 delete-btn" data-user-id="${row.id}" data-toggle="modal" data-target="#deleteModal" title="Eliminar">
+                        <i class="fas fa-trash"></i>
+                    </button>`;
+
+                            },
+                        },
+                    ],
+                    language: {
+                        url: "{% static 'datatable/spanish-plugin.json' %}",
+                    },
+                });
+            })
+            .catch((error) => console.error('Error al cargar los datos de usuarios:', error));
+
+
+        $('#customerform').on('submit', function (e) {
+            e.preventDefault();
+            const formData = new FormData(this);
+
+            // Obtener el token CSRF y añadirlo al FormData
+            const csrfToken = $('input[name="csrfmiddlewaretoken"]').val();
+            formData.append('csrfmiddlewaretoken', csrfToken);
+
+            axios
+                .post('/api/v1/customers/', formData, {
+                    headers: { 'Content-Type': 'multipart/form-data' },
+                })
+                .then((response) => {
+                    $('#createModal').modal('hide');
+                    customersTable.row.add(response.data).draw();
+                    this.reset();
+                })
+                .catch((error) => {
+                    if (error.response) {
+                        console.error('Error en la respuesta del servidor:', error.response.data);
+                    } else if (error.request) {
+                        console.error('Error en la solicitud:', error.request);
+                    } else {
+                        console.error('Error', error.message);
+                    }
+                });
+        });
+
+    });
+
+
+
+    async function llenarModalEdit(userId) {
+        try {
+            const response = await axios.get(`/api/v1/customers/${userId}/`);
+            const customer = response.data;
+
+            // Prellenar los campos del formulario
+            $('#id_name.form-control').val(customer.name);
+            $('#id_email.form-control').val(customer.email);
+            $('#id_phone.form-control').val(customer.phone);
+        } catch (error) {
+            console.error('Error al obtener los datos del cliente:', error);
+        }
+    }
+
+
+
+    $('#customerformedit').on('submit', function (e) {
+        e.preventDefault();
+        const userId = $('#editModal').data('user-id');  // ID del cliente que se está editando
+        const formData = new FormData(this);
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+
+        // Obtener el token CSRF y añadirlo al FormData
+        //formData.append('csrfmiddlewaretoken', csrfToken);
+
+        axios
+            .put(`/api/v1/customers/${userId}/`, formData, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken,
+                },
+            })
+            .then((response) => {
+                hideModalEdit()
+            })
+            .catch((error) => {
+                if (error.response) {
+                    console.error('Error en la respuesta del servidor:', error.response.data);
+                } else if (error.request) {
+                    console.error('Error en la solicitud:', error.request);
+                } else {
+                    console.error('Error', error.message);
+                }
+            });
+    });
+    $('#customersTable').on('click', '.edit-btn', function () {
+        const userId = $(this).data('user-id');
+        console.log("userid", userId)
+        $('#editModal').data('user-id', userId);
+        llenarModalEdit(userId).then(() => {
+            $('#editModal').modal('show');
+        });
+    });
+
+    // Abre el modal y guarda el userId del cliente que se va a eliminar
+    $('#customersTable').on('click', '.delete-btn', function () {
+        const userId = $(this).data('user-id');
+        $('#deleteCustomer').data('user-id', userId);
+        $('#deleteModal').modal('show');
+    });
+
+    // Confirmar la eliminación
+    $('#deleteCustomer').on('click', function () {
+        const userId = $(this).data('user-id');
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        axios.delete(`/api/v1/customers/${userId}/`, {
+            headers: {
+                'X-CSRFToken': csrfToken,
+            }
+        })
+            .then(response => {
+                hideModalDelete(userId)
+                console.log('Cliente eliminado con éxito');
+            })
+            .catch(error => {
+                console.error('Error al eliminar el cliente:', error);
+            });
+    });
+
+
+</script>
+{% endblock %}

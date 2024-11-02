@@ -11,18 +11,62 @@
             <h6 class="m-0 font-weight-bold text-primary">Detalles del Usuario</h6>
         </div>
         <div class="card-body">
-            <p><strong>Nombre:</strong> {{ user.name }}</p>
-            <p><strong>Apellido:</strong> {{ user.lastname }}</p>
-            <p><strong>Email:</strong> {{ user.email }}</p>
-            <p><strong>Teléfono:</strong> {{ user.phone }}</p>
-            <p><strong>Foto:</strong></p>
+            <p id="#id_name"><strong >Nombre:</strong> {{ user.name }}</p>
+            <p id="#id_lastname"><strong>Apellido:</strong> {{ user.lastname }}</p>
+            <p id="#id_email"><strong>Email:</strong> {{ user.email }}</p>
+            <p id="#id_phone"><strong>Teléfono:</strong> {{ user.phone }}</p>
+            <p id="#id_avatar"><strong>Foto:</strong></p>
             {% if user.avatar %}
                 <img src="{{ user.avatar.url }}" alt="Foto de {{ user.name }}" class="img-fluid" style="max-width: 200px;"><br>
             {% else %}
                 <p>No hay foto disponible.</p>
             {% endif %}
-            <a href="{% url 'user_list' %}" class="btn btn-secondary mt-3">Volver a la lista</a>
+            <a href="{% url 'user_list_api' %}" class="btn btn-secondary mt-3">Volver a la lista</a>
         </div>
     </div>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+     // Obtener el parámetro task_id de la URL
+
+  const userId = {{pk}} // Esto obtiene el valor de task
+  console.log(userId);
+
+// script.js
+
+// Función para obtener los detalles de la tarea
+function getUserDetails(userId) {
+  axios.get(`/api/v1/users/${taskId}/`) // Asegúrate de que esta URL sea la correcta
+      .then(response => {
+          const user = response.data;
+          console.log(task)
+          document.getElementById('id_name').innerText = user.name;
+          document.getElementById('id_lastname').innerText = user.lastname;
+          document.getElementById('id_email').innerText = user.email;
+          document.getElementById('id_phone').innerText = user.phone;
+          document.getElementById('id_avatar').innerText = user.avatar;
+          document.getElementById('task-created-at').innerText = new Date(user.created_at).toLocaleString();
+          document.getElementById('task-updated-at').innerText = new Date(user.updated_at).toLocaleString();
+    
+
+          // Si tienes permisos para editar y eliminar, añade la URL
+          const editTaskLink = document.getElementById('edit-task');
+          if (editTaskLink) {
+              editTaskLink.href = `/tasks/edit/api/v1/?task_id=${taskId}`; // Ajusta la URL de edición según tu configuración de URL
+          }
+
+          const deleteTaskLink = document.getElementById('delete-task');
+          if (deleteTaskLink) {
+              deleteTaskLink.href = `/tasks/delete/?task_id=${taskId}`; // Ajusta la URL de eliminación según tu configuración de URL
+          }
+      })
+      .catch(error => {
+          console.error('Error al obtener los detalles de la tarea:', error);
+          // Aquí puedes manejar el error, como mostrar un mensaje al usuario
+      });
+}
+
+// Llamar a la función para obtener los detalles de la tarea
+getUserDetails(userId);
+</script>
 {% endblock %}

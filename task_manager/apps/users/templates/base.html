@@ -11,6 +11,12 @@
     <!-- CSS de SB Admin 2 -->
     <link href="{% static 'sb-admin/vendor/fontawesome-free/css/all.min.css' %}" rel="stylesheet">
     <link href="{% static 'sb-admin/css/sb-admin-2.min.css' %}" rel="stylesheet">
+    <!-- SweetAlert2 CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+
+    <!-- SweetAlert2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+
 </head>
 
 
@@ -28,11 +34,7 @@
                 <!-- Topbar -->
                 {% include 'partials/topbar.html' %}
                 <!-- End of Topbar -->
-                {% if messages %}
-                {% for message in messages %}
-                    <div class="alert alert-success">{{ message }}</div>
-                {% endfor %}
-            {% endif %}
+              
 
                 <!-- Begin Page Content -->
                 <div class="container-fluid">
@@ -56,6 +58,7 @@
     <script src="{% static 'sb-admin/vendor/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
     <script src="{% static 'sb-admin/js/sb-admin-2.min.js' %}"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
 </body>
 
 </html>

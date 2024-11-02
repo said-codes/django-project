@@ -7,66 +7,56 @@ from django import forms
 from .models import User
 import re
 from django.contrib.auth.models import Group
-from phone_field import PhoneField
+
+
 
 
 
 class UserForm(forms.ModelForm):
-    phone = PhoneField(blank=True, help_text='Teléfono/Celular')
-    class Meta:
-        model = User
-        fields = ['name', 'lastname', 'email', 'phone','avatar']  # Añade más campos si es necesario
-
-        widgets = {
-            'name': forms.TextInput(attrs={
-                'class': 'form-control',  # Clase de SB Admin 2 (Bootstrap)
-                'placeholder': 'Ingrese dato para campo1'
-            }),
-            'lastname': forms.EmailInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Ingrese su email'
-            }),
-            'email': forms.PasswordInput(attrs={
-                'class': 'form-control',
-                'placeholder': 'Ingrese su contraseña'
-            }),
-        }
-
-
-        groups = forms.ModelMultipleChoiceField(
+    # Campos específicos del formulario
+    phone = forms.CharField(
+        required=False,
+        help_text='Teléfono/Celular',
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ingrese su teléfono'})
+    )
+    groups = forms.ModelMultipleChoiceField(
         queryset=Group.objects.all(),
         required=False,
+        widget=forms.SelectMultiple(attrs={'class': 'form-control'}),
         label='Grupos',
         help_text='Seleccione los grupos a los que pertenece el usuario'
     )
 
     class Meta:
         model = User
-        fields = ['name', 'lastname', 'email', 'phone', 'avatar', 'is_staff', 'is_admin', 'groups']  # Incluye grupos
-
-
-    def clean(self):
-        cleaned_data = super().clean()  # Guardar el resultado del super
-
-        phone = cleaned_data.get('phone')  # Ahora obtenemos el teléfono del cleaned_data
-
-        if phone:
-            # Regex para extraer solo los dígitos, ignorando el prefijo "+"
-            phone_digits = re.sub(r'[^0-9]', '', str(phone))
-
-            # Dividimos el número en dos partes: número base y extensión
-            base_number = phone_digits[:-5] if len(phone_digits) > 5 else phone_digits
-            extension = phone_digits[-5:] if len(phone_digits) > 5 else ""
-
-            # Validar que el número base contenga solo dígitos y tenga al menos 10 dígitos
-            if not base_number.isdigit() or len(base_number) < 10:
-                raise ValidationError({'phone': 'El número de teléfono debe contener al menos 10 dígitos.'})
-
-            # Validar que la extensión tenga un máximo de 5 dígitos y no contenga letras
-            if extension and (not extension.isdigit() or len(extension) > 5):
-                raise ValidationError({'phone': 'La extensión debe contener hasta 5 dígitos y no debe contener letras.'})
-
-        return cleaned_data  # Devuelve cleaned_data al final
+        fields = ['name', 'lastname', 'email', 'phone', 'avatar', 'is_staff', 'is_admin', 'enabled', 'groups']
+        
+        widgets = {
+            'name': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Ingrese nombre'
+            }),
+            'lastname': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Ingrese apellidos'
+            }),
+            'email': forms.EmailInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Ingrese su correo electrónico'
+            }),
+            'avatar': forms.FileInput(attrs={
+                'class': 'form-control-file'
+            }),
+            'is_staff': forms.CheckboxInput(attrs={
+                'class': 'form-check-input'
+            }),
+            'is_admin': forms.CheckboxInput(attrs={
+                'class': 'form-check-input'
+            }),
+            'enabled': forms.CheckboxInput(attrs={
+                'class': 'form-check-input'
+            }),
+        }
 
 
 
@@ -92,6 +82,8 @@ class EmailAuthenticationForm(AuthenticationForm):
                 raise forms.ValidationError('Contraseña incorrecta.')
 
         return super().clean()
+    
+    
 
 class CustomerForm(forms.ModelForm):
     class Meta:
@@ -109,25 +101,6 @@ class CustomerForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super().clean()  # Guardar el resultado del super
 
-        phone = cleaned_data.get('phone')  # Ahora obtenemos el teléfono del cleaned_data
-
-        if phone:
-            # Regex para extraer solo los dígitos, ignorando el prefijo "+"
-            phone_digits = re.sub(r'[^0-9]', '', str(phone))
-
-            # Dividimos el número en dos partes: número base y extensión
-            base_number = phone_digits[:-5] if len(phone_digits) > 5 else phone_digits
-            extension = phone_digits[-5:] if len(phone_digits) > 5 else ""
-
-            # Validar que el número base contenga solo dígitos y tenga al menos 10 dígitos
-            if not base_number.isdigit() or len(base_number) < 10:
-                raise ValidationError({'phone': 'El número de teléfono debe contener al menos 10 dígitos.'})
-
-            # Validar que la extensión tenga un máximo de 5 dígitos y no contenga letras
-            if extension and (not extension.isdigit() or len(extension) > 5):
-                raise ValidationError({'phone': 'La extensión debe contener hasta 5 dígitos y no debe contener letras.'})
-
-        return cleaned_data  # Devuelve cleaned_data al final
 
 
 

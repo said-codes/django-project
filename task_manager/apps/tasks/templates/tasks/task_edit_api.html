@@ -37,4 +37,19 @@
 </script>
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script src="{% static 'sb_admin_2/js/task_edit.js' %}"></script> <!-- Importa el archivo JavaScript aquí -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        {% if messages %}
+            {% for message in messages %}
+                Swal.fire({
+                    title: '¡Atención!',
+                    text: "{{ message }}",
+                    icon: "{{ message.tags }}",
+                    confirmButtonText: 'Aceptar'
+                });
+            {% endfor %}
+        {% endif %}
+    });
+</script>
+
 {% endblock %}

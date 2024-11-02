@@ -20,10 +20,12 @@
                                 <form method="post" action="{% url 'login' %}" class="user">
                                     {% csrf_token %}
                                     <div class="form-group">
-                                        <input type="email" name="username" id="email" required class="form-control form-control-user" placeholder="Correo electrónico">
+                                        <input type="email" name="username" id="email" required
+                                            class="form-control form-control-user" placeholder="Correo electrónico">
                                     </div>
                                     <div class="form-group">
-                                        <input type="password" name="password" class="form-control form-control-user" id="exampleInputPassword" placeholder="Contraseña" required>
+                                        <input type="password" name="password" class="form-control form-control-user"
+                                            id="exampleInputPassword" placeholder="Contraseña" required>
                                     </div>
                                     <button type="submit" class="btn btn-primary btn-user btn-block">
                                         Iniciar Sesión
@@ -35,11 +37,11 @@
                                 </div>
                                 <div class="text-center">
                                     {% if messages %}
-                                        {% for message in messages %}
-                                            <div class="alert alert-warning" role="alert">
-                                                {{ message }}
-                                            </div>
-                                        {% endfor %}
+                                    {% for message in messages %}
+                                    <div class="alert alert-warning" role="alert">
+                                        {{ message }}
+                                    </div>
+                                    {% endfor %}
                                     {% endif %}
                                 </div>
                             </div>
@@ -50,4 +52,19 @@
         </div>
     </div>
 </div>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        {% if messages %}
+        {% for message in messages %}
+        Swal.fire({
+            title: '¡Atención!',
+            text: "{{ message }}",
+            icon: "{{ message.tags }}",
+            confirmButtonText: 'Aceptar'
+        });
+        {% endfor %}
+        {% endif %}
+    });
+</script>
 {% endblock %}
